@@ -58,16 +58,16 @@ export function Sidebar({
       id="primary-sidebar"
       aria-label="Primary navigation"
       className={cn(
-        'fixed inset-y-0 left-0 z-50 flex w-[278px] flex-col border-r border-white/[0.07] bg-abyss/95 backdrop-blur-xl transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:translate-x-0',
+        'fixed inset-y-0 left-0 z-50 flex w-[min(285px,86vw)] sm:w-[278px] flex-col border-r border-white/[0.07] bg-abyss/95 backdrop-blur-xl transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:translate-x-0',
         open ? 'translate-x-0' : '-translate-x-full',
       )}
     >
-      <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-5">
+      <div className="flex items-center justify-between border-b border-white/[0.06] px-4 sm:px-5 py-4 sm:py-5">
         <Logo />
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg border border-white/10 p-1.5 text-muted transition-colors hover:text-white lg:hidden"
+          className="rounded-lg border border-white/10 p-2 text-muted transition-colors hover:text-white touch-manipulation lg:hidden"
           aria-label="Close navigation"
         >
           <X className="size-4" />

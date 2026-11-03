@@ -28,9 +28,9 @@ export function AnswerPanel({ run }: { run: SearchRun }) {
 
   return (
     <article className="panel panel-glow flex h-full flex-col overflow-hidden">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] bg-gradient-to-r from-ember/[0.06] via-transparent to-transparent px-5 py-4 sm:px-6">
-        <div className="flex items-center gap-3">
-          <div className="grid size-9 place-items-center rounded-xl border border-ember/25 bg-ember/10">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] bg-gradient-to-r from-ember/[0.06] via-transparent to-transparent px-4 py-3.5 sm:px-6 sm:py-4">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="grid size-9 place-items-center rounded-xl border border-ember/25 bg-ember/10 shrink-0">
             <Sparkles className="size-4 text-ember" />
           </div>
           <div>
@@ -51,7 +51,7 @@ export function AnswerPanel({ run }: { run: SearchRun }) {
           <button
             type="button"
             onClick={copy}
-            className="in group inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 font-mono text-[9.5px] uppercase tracking-wider text-muted transition-colors hover:border-ember/30 hover:text-ember-soft"
+            className="group inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 font-mono text-[9.5px] uppercase tracking-wider text-muted transition-colors hover:border-ember/30 hover:text-ember-soft touch-manipulation"
             aria-label="Copy synthesized answer"
           >
             {copied ? <Check className="size-3.5 text-telemetry" /> : <Copy className="size-3.5" />}
@@ -60,7 +60,7 @@ export function AnswerPanel({ run }: { run: SearchRun }) {
         </div>
       </header>
 
-      <div className="flex-1 px-5 py-5 sm:px-6 sm:py-6">
+      <div className="flex-1 px-4 py-4 sm:px-6 sm:py-6">
         {answer ? (
           <RichText text={answer} />
         ) : (
@@ -71,13 +71,13 @@ export function AnswerPanel({ run }: { run: SearchRun }) {
         )}
 
         {parameters.length > 0 && (
-          <div className="mt-6 border-t border-white/[0.06] pt-4">
+          <div className="mt-5 sm:mt-6 border-t border-white/[0.06] pt-4">
             <p className="mono-label">Numerical parameters detected</p>
             <div className="mt-2.5 flex flex-wrap gap-1.5">
               {parameters.map((parameter) => (
                 <span
                   key={parameter}
-                  className="rounded-md border border-ember/15 bg-ember/[0.06] px-2 py-1 font-mono text-[10.5px] text-ember-soft"
+                  className="rounded-md border border-ember/15 bg-ember/[0.06] px-2 py-1 font-mono text-[10px] sm:text-[10.5px] text-ember-soft break-all"
                 >
                   {parameter}
                 </span>
@@ -87,7 +87,7 @@ export function AnswerPanel({ run }: { run: SearchRun }) {
         )}
       </div>
 
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.06] bg-white/[0.015] px-5 py-3.5 sm:px-6">
+      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.06] bg-white/[0.015] px-4 py-3 sm:px-6 sm:py-3.5">
         <p className="flex items-center gap-1.5 text-[11px] text-dim">
           <Layers className="size-3.5 text-ember/70" />
           Grounded in {results.length} retrieved {results.length === 1 ? 'passage' : 'passages'}

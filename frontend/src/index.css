@@ -175,7 +175,15 @@
   }
 
   .stat-tile {
-    @apply rounded-xl border border-white/[0.06] bg-white/[0.02] p-3.5;
+    @apply rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 sm:p-3.5;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   .btn-ember {

@@ -35,9 +35,9 @@ export function TelemetryPanel({ run }: { run: SearchRun }) {
 
   return (
     <aside className="panel flex h-full flex-col overflow-hidden">
-      <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4">
+      <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-4 sm:px-5 py-3.5 sm:py-4">
         <div className="flex items-center gap-2.5">
-          <Activity className="size-4 text-telemetry" />
+          <Activity className="size-4 text-telemetry shrink-0" />
           <h2 className="font-display text-[13px] font-semibold tracking-tight text-white">
             Retrieval telemetry
           </h2>
@@ -48,16 +48,16 @@ export function TelemetryPanel({ run }: { run: SearchRun }) {
         </span>
       </header>
 
-      <div className="flex-1 space-y-5 px-5 py-4">
-        <div className="grid grid-cols-2 gap-2.5">
+      <div className="flex-1 space-y-4 sm:space-y-5 px-4 sm:px-5 py-3.5 sm:py-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-2 gap-2 sm:gap-2.5">
           {stats.map((stat) => (
             <div key={stat.label} className="stat-tile">
               <div className="flex items-center justify-between gap-2">
                 <span className="mono-label">{stat.label}</span>
-                <stat.icon className="size-3.5 text-dim" />
+                <stat.icon className="size-3.5 text-dim shrink-0" />
               </div>
-              <p className="mt-2 font-display text-xl font-semibold tracking-tight text-white">{stat.value}</p>
-              <p className="mt-0.5 font-mono text-[9px] uppercase tracking-wider text-dim/80">{stat.hint}</p>
+              <p className="mt-1.5 sm:mt-2 font-display text-lg sm:text-xl font-semibold tracking-tight text-white">{stat.value}</p>
+              <p className="mt-0.5 font-mono text-[8.5px] sm:text-[9px] uppercase tracking-wider text-dim/80">{stat.hint}</p>
             </div>
           ))}
         </div>

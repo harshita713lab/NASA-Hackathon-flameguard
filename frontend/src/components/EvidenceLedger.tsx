@@ -132,7 +132,7 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
 
       <div className="panel mt-4 p-3 sm:p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="-mx-1 flex items-center gap-1.5 overflow-x-auto px-1 pb-1 sm:pb-0">
+          <div className="-mx-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar px-1 pb-1 sm:pb-0">
             {fuelOptions.map((option) => {
               const count =
                 option === 'All'
@@ -144,7 +144,7 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
                   type="button"
                   onClick={() => setFuelFilter(option)}
                   className={cn(
-                    'shrink-0 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-colors',
+                    'shrink-0 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-colors touch-manipulation',
                     fuelFilter === option
                       ? 'border-ember/30 bg-ember/[0.1] text-ember-soft'
                       : 'border-transparent text-dim hover:bg-white/[0.04] hover:text-ink',
@@ -165,7 +165,7 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
                 aria-pressed={view === 'cards'}
                 aria-label="Card view"
                 className={cn(
-                  'rounded-md p-1.5 transition-colors',
+                  'rounded-md p-1.5 transition-colors touch-manipulation',
                   view === 'cards' ? 'bg-white/[0.08] text-white' : 'text-dim hover:text-ink',
                 )}
               >
@@ -177,7 +177,7 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
                 aria-pressed={view === 'table'}
                 aria-label="Table view"
                 className={cn(
-                  'rounded-md p-1.5 transition-colors',
+                  'rounded-md p-1.5 transition-colors touch-manipulation',
                   view === 'table' ? 'bg-white/[0.08] text-white' : 'text-dim hover:text-ink',
                 )}
               >
@@ -281,8 +281,11 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
         </div>
       ) : (
         <div className="panel mt-4 overflow-hidden">
+          <div className="md:hidden px-3.5 py-1.5 font-mono text-[9px] uppercase tracking-wider text-dim border-b border-white/[0.05] bg-white/[0.015]">
+            ← Scroll horizontally to inspect full table →
+          </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] border-collapse text-left">
+            <table className="w-full min-w-[720px] sm:min-w-[760px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-white/[0.08] bg-white/[0.02]">
                   {['#', 'Experiment', 'Fuel', 'Source', 'Passage excerpt', ''].map((header) => (

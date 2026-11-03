@@ -27,28 +27,28 @@ export function IdleState({ onUseExample }: { onUseExample: (query: string) => v
   ]
 
   return (
-    <div className="mt-9 grid animate-rise gap-5 lg:grid-cols-[1.12fr_1fr]">
-      <div className="panel p-5 sm:p-6">
+    <div className="mt-7 sm:mt-9 grid animate-rise gap-4 sm:gap-5 lg:grid-cols-[1.12fr_1fr]">
+      <div className="panel p-4 sm:p-6">
         <p className="mono-label">Start here</p>
-        <h2 className="mt-2 font-display text-lg font-semibold tracking-tight text-white">
+        <h2 className="mt-2 font-display text-base sm:text-lg font-semibold tracking-tight text-white">
           Four ways into the corpus
         </h2>
         <p className="mt-1.5 text-xs leading-relaxed text-muted">
           Load a benchmark question, adjust the fuel filter, then run the analysis.
         </p>
 
-        <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
+        <div className="mt-4 sm:mt-5 grid gap-2.5 sm:grid-cols-2">
           {EXAMPLES.map((example, index) => (
             <button
               key={example}
               type="button"
               onClick={() => onUseExample(example)}
-              className="group flex flex-col rounded-xl border border-white/[0.06] bg-white/[0.015] p-3.5 text-left transition-all hover:border-ember/25 hover:bg-ember/[0.04]"
+              className="group flex flex-col rounded-xl border border-white/[0.06] bg-white/[0.015] p-3 sm:p-3.5 text-left transition-all hover:border-ember/25 hover:bg-ember/[0.04] touch-manipulation"
             >
               <span className="font-mono text-[9px] text-dim transition-colors group-hover:text-ember-soft">
                 0{index + 1}
               </span>
-              <p className="mt-2 flex-1 text-[12px] leading-relaxed text-ink/80 transition-colors group-hover:text-ink">
+              <p className="mt-2 flex-1 text-[11.5px] sm:text-[12px] leading-relaxed text-ink/80 transition-colors group-hover:text-ink">
                 {example}
               </p>
               <span className="mt-3 inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-wider text-dim transition-colors group-hover:text-ember-soft">
@@ -60,7 +60,7 @@ export function IdleState({ onUseExample }: { onUseExample: (query: string) => v
         </div>
       </div>
 
-      <div className="panel p-5 sm:p-6">
+      <div className="panel p-4 sm:p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="mono-label">Pipeline</p>
@@ -205,7 +205,7 @@ export function LoadingState({ query }: { query: string }) {
             <div className="skeleton h-2.5 w-28 rounded-full" />
             <div className="skeleton h-4 w-12 rounded-full" />
           </div>
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-2 gap-2 sm:gap-2.5">
             {[0, 1, 2, 3].map((index) => (
               <div key={index} className="stat-tile space-y-2">
                 <div className="skeleton h-2 w-16 rounded-full" />
@@ -260,17 +260,17 @@ interface ErrorStateProps {
 
 export function ErrorState({ message, onRetry, backend, backendUrl, docsUrl }: ErrorStateProps) {
   return (
-    <div id="analysis" className="panel mt-9 scroll-mt-24 animate-rise overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rose-400/15 bg-rose-500/[0.05] px-5 py-4 sm:px-6">
-        <div className="flex items-center gap-3">
-          <span className="grid size-9 place-items-center rounded-xl border border-rose-400/25 bg-rose-400/10">
+    <div id="analysis" className="panel mt-7 sm:mt-9 scroll-mt-24 animate-rise overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rose-400/15 bg-rose-500/[0.05] px-4 sm:px-6 py-3.5 sm:py-4">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <span className="grid size-9 place-items-center rounded-xl border border-rose-400/25 bg-rose-400/10 shrink-0">
             <WifiOff className="size-4 text-rose-300" />
           </span>
           <div>
             <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-rose-300/90">
               Analysis interrupted
             </p>
-            <p className="mt-0.5 text-[13px] text-ink/90">The retrieval service did not complete the run.</p>
+            <p className="mt-0.5 text-[12.5px] sm:text-[13px] text-ink/90">The retrieval service did not complete the run.</p>
           </div>
         </div>
         <span
@@ -285,10 +285,10 @@ export function ErrorState({ message, onRetry, backend, backendUrl, docsUrl }: E
         </span>
       </div>
 
-      <div className="grid gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[1.15fr_1fr]">
+      <div className="grid gap-4 sm:gap-5 px-4 sm:px-6 py-4 sm:py-5 lg:grid-cols-[1.15fr_1fr]">
         <div>
-          <p className="text-[13px] leading-relaxed text-ink/85">{message}</p>
-          <p className="mt-3 flex items-start gap-2 text-[11.5px] leading-relaxed text-muted">
+          <p className="text-[12.5px] sm:text-[13px] leading-relaxed text-ink/85">{message}</p>
+          <p className="mt-3 flex items-start gap-2 text-[11px] sm:text-[11.5px] leading-relaxed text-muted">
             <TriangleAlert className="mt-0.5 size-3.5 shrink-0 text-ember-soft/70" />
             <span>
               Confirm the FastAPI server is running and that{' '}
@@ -298,11 +298,11 @@ export function ErrorState({ message, onRetry, backend, backendUrl, docsUrl }: E
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2">
-            <button type="button" onClick={onRetry} className="btn-ember px-4 py-2.5 text-[12.5px]">
+            <button type="button" onClick={onRetry} className="btn-ember px-4 py-2.5 text-[12.5px] touch-manipulation">
               <RotateCcw className="size-3.5" />
               Retry analysis
             </button>
-            <a href={docsUrl} target="_blank" rel="noreferrer" className="btn-ghost px-3.5 py-2.5">
+            <a href={docsUrl} target="_blank" rel="noreferrer" className="btn-ghost px-3.5 py-2.5 touch-manipulation">
               Open API docs
               <ArrowUpRight className="size-3.5" />
             </a>

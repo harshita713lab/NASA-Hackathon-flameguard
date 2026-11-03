@@ -22,18 +22,18 @@ export function Topbar({ onMenu, backend, onRefreshBackend, docsUrl }: TopbarPro
 
   return (
     <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-void/75 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 w-full max-w-[1380px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 items-center gap-3">
+      <div className="mx-auto flex h-16 w-full max-w-[1380px] 2xl:max-w-[1560px] items-center justify-between gap-3 px-3.5 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={onMenu}
-            className="rounded-lg border border-white/10 bg-white/[0.03] p-2 text-muted transition-colors hover:text-white lg:hidden"
+            className="rounded-lg border border-white/10 bg-white/[0.03] p-2 text-muted transition-colors hover:text-white touch-manipulation lg:hidden"
             aria-label="Open navigation"
           >
             <Menu className="size-4" />
           </button>
 
-          <div className="flex min-w-0 items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.16em]">
+          <div className="flex min-w-0 items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] sm:tracking-[0.16em]">
             <span className="hidden text-dim sm:inline">Mission control</span>
             <span className="hidden text-white/15 sm:inline">/</span>
             <span className="truncate text-ink/80">SI console</span>
@@ -51,7 +51,7 @@ export function Topbar({ onMenu, backend, onRefreshBackend, docsUrl }: TopbarPro
             href={docsUrl}
             target="_blank"
             rel="noreferrer"
-            className="hidden rounded-lg border border-white/10 bg-white/[0.02] p-2 text-muted transition-colors hover:border-white/20 hover:text-ink sm:block"
+            className="hidden rounded-lg border border-white/10 bg-white/[0.02] p-2 text-muted transition-colors hover:border-white/20 hover:text-ink sm:block touch-manipulation"
             aria-label="Open API documentation"
             title="API documentation"
           >

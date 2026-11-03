@@ -28,13 +28,13 @@ function Backdrop() {
 
 function ResultsHeader({ run, onEdit }: { run: SearchRun; onEdit: () => void }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-4">
-      <div className="min-w-0">
+    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+      <div className="min-w-0 flex-1">
         <p className="flex items-center gap-2 font-mono text-[9.5px] uppercase tracking-[0.18em] text-telemetry/80">
-          <CheckCircle2 className="size-3.5" />
+          <CheckCircle2 className="size-3.5 shrink-0" />
           Analysis complete
         </p>
-        <h2 className="mt-2 max-w-3xl font-display text-[17px] font-semibold leading-snug tracking-tight text-white sm:text-lg">
+        <h2 className="mt-2 max-w-3xl font-display text-[16px] sm:text-[18px] font-semibold leading-snug tracking-tight text-white break-words">
           “{run.query}”
         </h2>
       </div>
@@ -43,7 +43,7 @@ function ResultsHeader({ run, onEdit }: { run: SearchRun; onEdit: () => void }) 
           {run.fuelFilter === 'All' ? 'All fuel states' : `${run.fuelFilter} only`}
         </span>
         <span className="chip border-white/[0.08] py-1 text-[10px]">top_k {run.topK}</span>
-        <button type="button" onClick={onEdit} className="btn-ghost py-1.5 text-[10.5px]">
+        <button type="button" onClick={onEdit} className="btn-ghost py-1.5 text-[10.5px] touch-manipulation">
           <PencilLine className="size-3" />
           Edit query
         </button>
@@ -187,7 +187,7 @@ export default function App() {
           docsUrl={docsUrl}
         />
 
-        <main className="mx-auto w-full max-w-[1380px] px-4 pb-14 pt-7 sm:px-6 lg:px-8 lg:pt-9">
+        <main className="mx-auto w-full max-w-[1380px] 2xl:max-w-[1560px] px-3.5 pb-12 pt-5 sm:px-6 sm:pb-14 sm:pt-7 lg:px-8 lg:pt-9">
           <QueryConsole
             query={query}
             onQueryChange={setQuery}
@@ -211,10 +211,10 @@ export default function App() {
             ) : loading ? (
               <LoadingState query={query.trim()} />
             ) : run ? (
-              <div id="analysis" className="mt-9 scroll-mt-24 space-y-5">
+              <div id="analysis" className="mt-7 sm:mt-9 scroll-mt-24 space-y-4 sm:space-y-5">
                 <ResultsHeader run={run} onEdit={() => jumpTo('console')} />
 
-                <div className="grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+                <div className="grid gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
                   <div className="animate-rise">
                     <AnswerPanel run={run} />
                   </div>
@@ -232,10 +232,10 @@ export default function App() {
             )}
           </div>
 
-          <footer className="mt-14 border-t border-white/[0.06] pt-6">
+          <footer className="mt-10 sm:mt-14 border-t border-white/[0.06] pt-5 sm:pt-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-dim">
-                <Flame className="size-3 text-ember/70" />
+                <Flame className="size-3 text-ember/70 shrink-0" />
                 FlameGuard SI · NASA Space Apps Challenge
               </p>
               <p className="text-[10px] leading-relaxed text-dim">
