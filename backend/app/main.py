@@ -1,46 +1,30 @@
+
+
 import os
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
 from dotenv import load_dotenv
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_pinecone import PineconeVectorStore
-from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate
-from pinecone import Pinecone
+from app.graph.workflow import flameguard_graph
 
-# Load environment variables
 load_dotenv()
 
 app = FastAPI(title="NASA Space Apps - FlameGuard SI API")
-INDEX_NAME = "nasa-combustion-rag"
 
-# 1. Initialize Embeddings and Vector Store
-print("Loading HuggingFace Inference for retrieval...")
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-vectorstore = PineconeVectorStore(index_name=INDEX_NAME, embedding=embeddings)
-
-# 2. Initialize the Groq LLM (Llama 3)
-llm = ChatGroq(
-    api_key=os.getenv("GROQ_API_KEY"),
-    model_name="openai/gpt-oss-20b", # Extremely fast inference
-    temperature=0.0 # Deterministic output for scientific accuracy
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# 3. The Super Intelligence Prompt Template
-system_prompt = (
-    "You are a NASA Super Intelligence (SI) aerospace engineer specializing in microgravity fire safety. "
-    "Use the provided scientific context from the Physical Science Informatics (PSI) database to answer the query. "
-    "Extract exact numerical variables (e.g., oxygen %, pressure, flame spread speed) when available. "
-    "If the context does not contain the answer, state that the data is not available in the current PSI parameters. "
-    "\n\nContext:\n{context}"
-)
-prompt_template = ChatPromptTemplate.from_messages([
-    ("system", system_prompt),
-    ("human", "{query}")
-])
+IMAGE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "images"))
+os.makedirs(IMAGE_DIR, exist_ok=True)
+app.mount("/static_images", StaticFiles(directory=IMAGE_DIR), name="static_images")
 
-# --- Pydantic Schemas ---
 class SearchRequest(BaseModel):
     query: str
     fuel_filter: Optional[str] = None
@@ -56,48 +40,49 @@ class SearchResponse(BaseModel):
     synthesized_answer: str
     raw_results: List[SearchResult]
 
-# --- API Endpoints ---
 @app.post("/api/search", response_model=SearchResponse)
 async def search_combustion_data(request: SearchRequest):
     try:
-        # A. Retrieve context from Pinecone
-        search_kwargs = {"k": request.top_k}
-        if request.fuel_filter:
-            search_kwargs["filter"] = {"fuel_state": request.fuel_filter}
-        docs = vectorstore.similarity_search(request.query, **search_kwargs)
+        # Initialize graph state
+        initial_state = {
+            "query": request.query,
+            "fuel_filter": request.fuel_filter,
+            "top_k": request.top_k,
+            "is_safe": True,
+            "retrieved_chunks": [],
+            "synthesized_answer": "",
+            "active_source": ""
+        }
+        
+        # Execute the LangGraph workflow
+        final_state = flameguard_graph.invoke(initial_state)
+        
+        if not final_state["is_safe"]:
+            return SearchResponse(
+                synthesized_answer="Query rejected due to security policy or prompt injection detection.",
+                raw_results=[]
+            )
 
+        # Map state back to Pydantic schema
         formatted_results = [
             SearchResult(
-                text=doc.page_content,
-                experiment=doc.metadata.get("experiment", "Unknown"),
-                fuel_state=doc.metadata.get("fuel_state", "Unknown"),
-                source=doc.metadata.get("source", "Unknown")
+                text=chunk.get("text", ""),
+                experiment=chunk.get("experiment", "Unknown"),
+                fuel_state=chunk.get("fuel_state", "Unknown"),
+                source=chunk.get("source", "Unknown")
             )
-            for doc in docs
+            for chunk in final_state["retrieved_chunks"]
         ]
 
-        # B. Prepare context string for the LLM
-        context_text = "\n\n".join(
-            [f"Experiment: {res.experiment}\nData: {res.text}" for res in formatted_results]
-        )
-
-        # C. Generate the SI synthesized answer
-        chain = prompt_template | llm
-        llm_response = chain.invoke({
-            "context": context_text,
-            "query": request.query
-        })
-        if llm_response:
-            print("LLM response:", llm_response.content)
-
         return SearchResponse(
-            synthesized_answer=llm_response.content,
+            synthesized_answer=final_state["synthesized_answer"],
             raw_results=formatted_results
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Internal Engine Error: {str(e)}")
+        raise HTTPException(status_code=500, detail="An internal server error occurred while synthesizing aerospace data.")
 
-@app.get("/")
+@app.get("/healthz")
 def health_check():
-    return {"status": "FlameGuard SI API is running"}
+    return {"status": "API ONLINE"}

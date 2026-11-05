@@ -2,3 +2,6 @@
 venv
 .env
 __pycache__
+backend/data/images/
+backend/data/images.zip
+backend/data/raw/BASS-II Summary Report.pdf

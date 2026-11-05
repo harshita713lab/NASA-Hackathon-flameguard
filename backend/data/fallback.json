@@ -1,0 +1,20 @@
+[
+  {
+    "text": "BASS-II Fallback Data: In microgravity, the extinction velocity for PMMA (Polymethylmethacrylate) rods was recorded at 30 mm/s in 16% oxygen environments. Opposed-flow flame spread is highly dependent on ambient oxygen concentration and forced flow velocity.",
+    "experiment": "BASS-II (Offline Backup)",
+    "fuel_state": "Solid",
+    "source": "fallback.json"
+  },
+  {
+    "text": "BASS-II Fallback Data: For flat fabric samples (cotton and fiberglass SIBAL blends), microgravity tests showed that flames can spread upstream against the forced airflow. The flame shape becomes spherical at lower flow velocities before extinction.",
+    "experiment": "BASS-II (Offline Backup)",
+    "fuel_state": "Solid",
+    "source": "fallback.json"
+  },
+  {
+    "text": "FLEX Fallback Data: Droplet combustion tests in the Flame Extinguishment Experiment (FLEX) demonstrated that substituting carbon dioxide with helium as an inert diluent alters the extinction limits due to differences in thermal diffusivity.",
+    "experiment": "FLEX (Offline Backup)",
+    "fuel_state": "Liquid",
+    "source": "fallback.json"
+  }
+]
