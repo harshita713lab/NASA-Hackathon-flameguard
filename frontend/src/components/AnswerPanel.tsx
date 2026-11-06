@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Check, Copy, Layers, Sparkles, Timer } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import type { SearchRun } from '../types'
 import { formatMs } from '../lib/format'
 import { extractParameters } from '../lib/highlight'
-import { RichText } from '../lib/richText'
 
 export function AnswerPanel({ run }: { run: SearchRun }) {
   const [copied, setCopied] = useState(false)
@@ -62,7 +63,31 @@ export function AnswerPanel({ run }: { run: SearchRun }) {
 
       <div className="flex-1 px-4 py-4 sm:px-6 sm:py-6">
         {answer ? (
-          <RichText text={answer} />
+          <div className="si-prose">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                table: ({ node, ...props }) => (
+                  <div className="my-4 overflow-x-auto">
+                    <table className="min-w-full border-collapse border border-white/10 text-[12.5px]" {...props} />
+                  </div>
+                ),
+                th: ({ node, ...props }) => (
+                  <th className="border border-white/10 bg-white/[0.05] p-2.5 text-left font-semibold text-white" {...props} />
+                ),
+                td: ({ node, ...props }) => (
+                  <td className="border border-white/10 p-2.5 text-ink/80" {...props} />
+                ),
+                img: ({ node, ...props }) => (
+                  <div className="my-6 flex justify-center">
+                    <img className="max-h-[500px] max-w-full rounded-xl border border-white/10" {...props} />
+                  </div>
+                ),
+              }}
+            >
+              {answer}
+            </ReactMarkdown>
+          </div>
         ) : (
           <p className="text-sm leading-relaxed text-muted">
             The model returned an empty synthesis for this query. Retry with a more specific question about
