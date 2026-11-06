@@ -1,5 +1,7 @@
 import os
+from pathlib import Path
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
 from dotenv import load_dotenv
@@ -14,6 +16,11 @@ load_dotenv()
 
 app = FastAPI(title="NASA Space Apps - FlameGuard SI API")
 INDEX_NAME = "nasa-combustion-rag"
+
+# Figures extracted from the source PDFs live here and are referenced as data/images/<file>.png
+IMAGES_DIR = Path(__file__).resolve().parent.parent / "data" / "images"
+IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/static_images", StaticFiles(directory=IMAGES_DIR), name="static_images")
 
 # 1. Initialize Embeddings and Vector Store
 print("Loading HuggingFace Inference for retrieval...")
@@ -91,8 +98,20 @@ async def search_combustion_data(request: SearchRequest):
             print("LLM response:", llm_response.content)
 
         return SearchResponse(
-            synthesized_answer=llm_response.content,
-            raw_results=formatted_results
+            synthesized_answer=llm_response.content.replace(
+                "data/images/", "http://127.0.0.1:8000/static_images/"
+            ),
+            raw_results=[
+                SearchResult(
+                    text=result.text.replace(
+                        "data/images/", "http://127.0.0.1:8000/static_images/"
+                    ),
+                    experiment=result.experiment,
+                    fuel_state=result.fuel_state,
+                    source=result.source,
+                )
+                for result in formatted_results
+            ],
         )
 
     except Exception as e:

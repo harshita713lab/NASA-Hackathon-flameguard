@@ -11,8 +11,10 @@ function resolveImageUrl(raw?: string): string {
   let src = raw?.trim() ?? ''
   if (!src) return ''
 
-  // The model sometimes emits repo-relative paths instead of the served URL.
+  // The model sometimes emits repo-relative paths instead of the served URL,
+  // or turns a relative /static_images path into a fake host.
   src = src.replace(/^(?:\.\/)?data\/images\//i, '/static_images/')
+  src = src.replace(/^https?:\/\/static_images(?=\/)/i, '/static_images')
 
   if (API_BASE) {
     src = src.replace(/^https?:\/\/(?:127\.0\.0\.1|localhost):8000(?=\/)/i, API_BASE)
@@ -86,7 +88,7 @@ function MarkdownImage({ src, alt, title, className, ...rest }: MarkdownImagePro
           src={resolved}
           alt={alt ?? ''}
           title={title}
-          loading="lazy"
+          loading="eager"
           decoding="async"
           onError={() => setFailedSrc(resolved)}
           className={cn(
