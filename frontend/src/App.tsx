@@ -215,10 +215,10 @@ export default function App() {
                 <ResultsHeader run={run} onEdit={() => jumpTo('console')} />
 
                 <div className="grid gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
-                  <div className="animate-rise">
+                  <div className="animate-rise min-w-0">
                     <AnswerPanel run={run} />
                   </div>
-                  <div className="animate-rise [animation-delay:90ms]">
+                  <div className="animate-rise min-w-0 [animation-delay:90ms]">
                     <TelemetryPanel run={run} />
                   </div>
                 </div>

@@ -283,6 +283,28 @@
   .si-prose .si-quote {
     @apply rounded-r-lg border-l-2 border-ember/50 bg-ember/[0.05] py-2.5 pr-3 pl-4 text-[13.5px] leading-relaxed text-ink/80;
   }
+  .si-prose pre code {
+    @apply bg-transparent p-0 text-[12px] text-ink/85;
+  }
+
+  .si-prose-sm {
+    @apply text-[12.5px] leading-[1.7];
+  }
+  .si-prose-sm > * + * {
+    @apply mt-2.5;
+  }
+  .si-prose-sm h1,
+  .si-prose-sm h2,
+  .si-prose-sm h3,
+  .si-prose-sm h4 {
+    @apply mt-4 mb-1.5 text-[13px];
+  }
+  .si-prose-sm code {
+    @apply text-[11px];
+  }
+  .si-prose-sm table {
+    @apply text-[11.5px];
+  }
 
   .ledger-text {
     display: -webkit-box;

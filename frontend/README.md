@@ -21,6 +21,7 @@ During development Vite proxies API traffic to the FastAPI backend:
 | --- | --- |
 | `/api/search` | `http://127.0.0.1:8000/api/search` |
 | `/healthz` | `http://127.0.0.1:8000/` (health check) |
+| `/static_images/*` | `http://127.0.0.1:8000/static_images/*` (figures in GFM output) |
 
 The proxy means the backend needs **no CORS configuration**. To target a different backend:
 

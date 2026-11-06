@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { Check, Copy, Layers, Sparkles, Timer } from 'lucide-react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import type { SearchRun } from '../types'
 import { formatMs } from '../lib/format'
 import { extractParameters } from '../lib/highlight'
+import { Markdown } from './Markdown'
 
 export function AnswerPanel({ run }: { run: SearchRun }) {
   const [copied, setCopied] = useState(false)
@@ -28,7 +27,7 @@ export function AnswerPanel({ run }: { run: SearchRun }) {
   }
 
   return (
-    <article className="panel panel-glow flex h-full flex-col overflow-hidden">
+    <article className="panel panel-glow flex h-full min-w-0 flex-col overflow-hidden">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] bg-gradient-to-r from-ember/[0.06] via-transparent to-transparent px-4 py-3.5 sm:px-6 sm:py-4">
         <div className="flex items-center gap-2.5 sm:gap-3">
           <div className="grid size-9 place-items-center rounded-xl border border-ember/25 bg-ember/10 shrink-0">
@@ -63,31 +62,7 @@ export function AnswerPanel({ run }: { run: SearchRun }) {
 
       <div className="flex-1 px-4 py-4 sm:px-6 sm:py-6">
         {answer ? (
-          <div className="si-prose">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={{
-                table: ({ node, ...props }) => (
-                  <div className="my-4 overflow-x-auto">
-                    <table className="min-w-full border-collapse border border-white/10 text-[12.5px]" {...props} />
-                  </div>
-                ),
-                th: ({ node, ...props }) => (
-                  <th className="border border-white/10 bg-white/[0.05] p-2.5 text-left font-semibold text-white" {...props} />
-                ),
-                td: ({ node, ...props }) => (
-                  <td className="border border-white/10 p-2.5 text-ink/80" {...props} />
-                ),
-                img: ({ node, ...props }) => (
-                  <div className="my-6 flex justify-center">
-                    <img className="max-h-[500px] max-w-full rounded-xl border border-white/10" {...props} />
-                  </div>
-                ),
-              }}
-            >
-              {answer}
-            </ReactMarkdown>
-          </div>
+          <Markdown text={answer} />
         ) : (
           <p className="text-sm leading-relaxed text-muted">
             The model returned an empty synthesis for this query. Retry with a more specific question about
