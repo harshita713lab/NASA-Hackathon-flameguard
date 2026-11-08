@@ -132,7 +132,7 @@ export function QueryConsole({
               }
             }}
             rows={3}
-            maxLength={600}
+            maxLength={500}
             placeholder="e.g. How does flame spread behave over solid PMMA acrylics in microgravity?"
             className="w-full resize-none bg-transparent text-base sm:text-[14.5px] leading-relaxed text-ink placeholder:text-dim/70 focus:outline-none"
           />
@@ -141,7 +141,7 @@ export function QueryConsole({
               <TerminalSquare className="size-3 shrink-0" />
               <span className="truncate">Natural language query</span>
             </span>
-            <span className="shrink-0">{query.length}/600</span>
+            <span className="shrink-0">{query.length}/500</span>
           </div>
         </div>
 

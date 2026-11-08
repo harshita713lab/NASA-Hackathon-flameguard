@@ -125,7 +125,7 @@ flowchart LR
 ```text
 Browser (React 19 + TypeScript)
         |
-        |  POST /api/search  { query, fuel_filter, top_k }
+        |  POST /api/search  { query, fuel_filter, mission, pillar, top_k }
         v
 Vite dev proxy  --------------->  FastAPI (Python 3.11)
                                      |
@@ -161,10 +161,10 @@ sequenceDiagram
   participant G as Groq LLM
 
   U->>F: Ask a microgravity fire-safety question
-  F->>B: POST /api/search {query, fuel_filter, top_k}
+  F->>B: POST /api/search {query, fuel_filter, mission, pillar, top_k}
   B->>M: Embed the query
   M-->>B: 384-dimension vector
-  B->>P: Similarity search (top_k, optional fuel filter)
+  B->>P: Curated lookup + similarity search (fuel/mission/pillar filters)
   P-->>B: PSI passages + experiment metadata
   B->>G: Grounded prompt (context + query)
   G-->>B: Scientific synthesis (temperature 0.0)
@@ -176,9 +176,9 @@ sequenceDiagram
 
 ## How the RAG pipeline works
 
-1. **Ingestion** (`backend/app/scripts/setup_vector_db.py`): NASA PDFs are read with **PyMuPDF**, split with `RecursiveCharacterTextSplitter` (`chunk_size=1000`, `chunk_overlap=150`), embedded with **`all-MiniLM-L6-v2`** (384 dimensions), and upserted into the **Pinecone** index `nasa-combustion-rag` (cosine metric, serverless AWS `us-east-1`).
-2. **Retrieval**: the query is embedded with the same MiniLM model, then top-k passages are fetched from Pinecone with optional metadata filtering on `fuel_state`.
-3. **Grounded synthesis**: passages are formatted as `Experiment: ... / Data: ...` context and injected into a system prompt that casts the model as a **NASA Super Intelligence aerospace engineer specializing in microgravity fire safety**.
+1. **Ingestion** (`backend/app/scripts/setup_vector_db.py`): NASA PDFs are read with **PyMuPDF**, split with `RecursiveCharacterTextSplitter` (`chunk_size=1000`, `chunk_overlap=150`), embedded with **`all-MiniLM-L6-v2`** (384 dimensions), and upserted into the **Pinecone** index `nasa-combustion-rag` (cosine metric, serverless AWS `us-east-1`). `seed_curated_psi.py --apply` adds the validated curated records with `pillar`, `environments` and `citation` metadata.
+2. **Curated-first retrieval** (`backend/app/curated.py`): 17 validated NASA PSI records are scored by keyword/label/text overlap and filtered by fuel state, mission environment and safety pillar. They are merged ahead of Pinecone passages; Pinecone fills the remaining slots and curated records keep working if the index is unavailable.
+3. **Grounded synthesis**: passages are formatted as `Experiment: ... / Pillar: ... / Environment: ... / Data: ...` context and injected into a system prompt that casts the model as a **NASA Super Intelligence aerospace engineer specializing in microgravity fire safety**.
 4. **Evidence-first response**: the API returns both `synthesized_answer` and the untouched `raw_results`, so the frontend can render citations, telemetry, and the complete evidence trail.
 5. **Figure resolution**: `data/images/...` references are rewritten to `/static_images/...`; the backend serves them via **FastAPI `StaticFiles`**, and the frontend normalizes relative or malformed image URLs before rendering.
 
@@ -204,6 +204,8 @@ sequenceDiagram
 | Vector database | **Pinecone** | 7.3 | Semantic retrieval |
 | LLM | **Groq `openai/gpt-oss-20b`** | via `langchain-groq` | Temperature-0 synthesis |
 | PDF extraction | **PyMuPDF** | 2.0 | Text and figure extraction |
+| Rate limiting | **slowapi** | 0.1 | 5 requests/minute per IP |
+| Testing | **pytest / Vitest + Testing Library** | 8.x / 5.x | Backend and frontend suites |
 
 ---
 
@@ -213,27 +215,34 @@ sequenceDiagram
 NASA-Hackathon-flameguard/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py                 # FastAPI app, RAG chain, static figure mount
+│   │   ├── main.py                 # FastAPI app, curated-first RAG chain, static figure mount
+│   │   ├── curated.py              # Curated PSI loader, normalisation and hit scoring
 │   │   └── scripts/
 │   │       ├── nasa_ingestion.py   # NASA OSDR metadata / dataset downloader
+│   │       ├── seed_curated_psi.py # Push validated PSI records into Pinecone
 │   │       └── setup_vector_db.py  # PDF -> chunks -> embeddings -> Pinecone
 │   ├── data/
+│   │   ├── curated/                # Validated NASA PSI JSON records
 │   │   ├── images/                 # Extracted figures served at /static_images
 │   │   └── raw/                    # Source NASA PDFs (Saffire, Mir, ...)
+│   ├── tests/                      # pytest suite (offline provider stubs)
+│   ├── pytest.ini
 │   ├── requirements.txt
+│   ├── requirements-test.txt
 │   └── .env                        # PINECONE_API_KEY / GROQ_API_KEY (never commit)
 ├── frontend/
 │   ├── src/
-│   │   ├── components/             # QueryConsole, AnswerPanel, EvidenceLedger, ...
+│   │   ├── components/             # QueryConsole, AnswerPanel, EvidenceLedger, RiskSimulator, ...
 │   │   ├── hooks/                  # useBackendStatus, useSearchHistory
 │   │   ├── lib/                    # api client, markdown helpers, formatting
 │   │   ├── App.tsx
 │   │   └── index.css
+│   ├── tests/                      # Vitest + Testing Library suite
+│   ├── vitest.config.ts
 │   ├── vite.config.ts              # /api, /healthz, /static_images proxy
 │   └── package.json
 ├── docs/
-│   └── demo-script.md
-├── docker-compose.yml              # placeholder for containerized deployment
+│   └── NASA-new mix.md
 └── README.md
 ```
 
@@ -310,7 +319,15 @@ Open **http://localhost:5173**. API docs are at **http://127.0.0.1:8000/docs**.
 cd frontend
 npm run lint      # oxlint, 0 warnings / 0 errors expected
 npm run build     # tsc -b && vite build
+npm run test      # Vitest + Testing Library
 npm run preview   # production preview on port 4173
+```
+
+Run the backend suite from `backend/`:
+
+```bash
+pip install -r requirements-test.txt
+python -m pytest
 ```
 
 ---
@@ -345,15 +362,19 @@ Request body:
 {
   "query": "How does flame spread behave over solid PMMA acrylics in microgravity?",
   "fuel_filter": "Solid",
+  "mission": "ISS",
+  "pillar": "Prevention",
   "top_k": 4
 }
 ```
 
 | Field | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
-| `query` | string | Yes | - | Natural-language research question |
-| `fuel_filter` | string | No | none | `Solid`, `Liquid`, or `Mixed` |
-| `top_k` | integer | No | `4` | Number of passages to retrieve |
+| `query` | string | Yes | - | 5-500 characters; whitespace is normalised |
+| `fuel_filter` | string | No | none | `Solid`, `Liquid`, `Mixed`, or `All` |
+| `mission` | string | No | none | `ISS`, `Lunar Base`, `Spacesuit EVA`, or `All` |
+| `pillar` | string | No | none | `Prevention`, `Detection`, `Suppression`, or `All` |
+| `top_k` | integer | No | `4` | 1-10 passages |
 
 Response body:
 
@@ -365,7 +386,10 @@ Response body:
       "text": "Raw PSI passage exactly as retrieved...",
       "experiment": "BASS-II",
       "fuel_state": "Solid",
-      "source": "BASS-II Summary Report.pdf"
+      "source": "BASS-II Summary Report (NASA/TM-20210011385)",
+      "pillar": "Prevention",
+      "environments": ["ISS"],
+      "citation": "NASA/TM-20210011385, Section 2.1.2 Results"
     }
   ]
 }
@@ -376,9 +400,12 @@ Response body:
 | `synthesized_answer` | string | Markdown synthesis, may include GFM tables and `![figure](...)` images |
 | `raw_results[]` | array | Unmodified evidence passages with retrieval metadata |
 | `raw_results[].text` | string | Passage content, including image references |
-| `raw_results[].experiment` | string | Experiment identifier |
+| `raw_results[].experiment` | string | Experiment identifier (BASS-II, Saffire, FLEX, SAME, Lunar Base, ...) |
 | `raw_results[].fuel_state` | string | `Solid`, `Liquid`, `Mixed`, or `Unknown` |
 | `raw_results[].source` | string | NASA source document |
+| `raw_results[].pillar` | string \| null | `Prevention`, `Detection`, or `Suppression` |
+| `raw_results[].environments` | string[] | Applicable mission environments |
+| `raw_results[].citation` | string \| null | Section-level source citation |
 
 ### Frontend proxy contract
 
@@ -394,14 +421,16 @@ Response body:
 
 | Investigation | Focus | Repository status |
 | --- | --- | --- |
-| **BASS / BASS-II** | Solid-fuel flammability, PMMA slab and rod geometries, opposed and concurrent flame spread | Indexed passages and extracted figures |
-| **Saffire I–VI** | Large-scale spacecraft fire growth, fabric and smoke transport | Source PDF available in `backend/data/raw` |
+| **BASS / BASS-II** | Solid-fuel flammability, PMMA slab and rod geometries, opposed and concurrent flame spread | Indexed passages, extracted figures and curated records |
+| **Saffire I–VI** | Large-scale spacecraft fire growth, fabric and smoke transport | Curated records plus source PDF in `backend/data/raw` |
 | **Mir space station** | Long-duration microgravity combustion records | Source PDF available in `backend/data/raw` |
-| **FLEX / FLEX-2** | Droplet combustion and suppression with CO2 / helium | Planned ingestion |
-| **SAME / SAME-R** | Smoke aerosol measurement and detection | Planned ingestion |
+| **FLEX / FLEX-2** | Droplet combustion and suppression with CO2 / helium | Curated suppression records |
+| **SAME / SAME-R** | Smoke aerosol measurement and detection | Curated detection records |
+| **Lunar Base** | 30-34% O2 at 10.2 psi habitat atmosphere | Curated prevention records |
+| **Spacesuit EVA** | 100% O2 at 4.3 psi suit atmosphere | Curated prevention records |
 | **NASA OSDR / PSI** | Public physical-science metadata | Ingestion helper in `backend/app/scripts/nasa_ingestion.py` |
 
-> The vector index currently covers a subset of the corpus. Queries outside the indexed material return the model's explicit "data not available" response rather than fabricated numbers.
+> The curated layer covers 17 validated records and always remains available. Pinecone passages are merged in when the index is reachable; queries outside both sources return the model's explicit "data not available" response rather than fabricated numbers.
 
 ---
 
@@ -433,10 +462,12 @@ Missing assets degrade gracefully to a labelled **"Figure unavailable"** placeho
 
 | Check | Command | Status |
 | --- | --- | --- |
+| Backend tests | `python -m pytest` | 98 passed |
+| Frontend tests | `npm run test` | 62 passed |
 | Frontend lint | `npm run lint` | 0 warnings, 0 errors |
 | TypeScript + production build | `npm run build` | Passes (`tsc -b && vite build`) |
-| Backend syntax | `python -m ast` / import check | Passes |
-| API smoke test | `POST /api/search` | HTTP 200 with grounded answer |
+| Backend import | `python -c "import app.main"` | Passes with curated fallback |
+| API contract | FastAPI `TestClient` suite | Health, validation, filters, fallback |
 | Static figures | `GET /static_images/<figure>.png` | HTTP 200 for extracted assets |
 | Responsive layout | Narrow viewport audit | No horizontal page overflow |
 
@@ -453,16 +484,16 @@ flowchart LR
 
 | Area | Current state | Next step |
 | --- | --- | --- |
-| Scientific corpus coverage | Partial: BASS-II figures and passages verified | Ingest Saffire, FLEX, SAME, and lunar-habitat data at scale |
-| Mission environment filters | Fuel-state filter only | Add Lunar Base (30% O2), Spacesuit (100% O2), ISS, and Mars toggles |
-| Fire-safety pillar tagging | Not yet exposed | Tag passages as Prevention, Detection, or Suppression |
-| Interactive risk modelling | Static query input | Add an oxygen-versus-pressure Relative Flammability Index slider |
-| Rate limiting | Not implemented | Add `slowapi` (for example 20 requests/minute per client) |
-| Prompt-injection defence | Not implemented | Add query length limits and pattern validation |
-| Error handling | Returns internal detail | Log server-side, return sanitized client messages |
-| Offline demo fallback | Not implemented | Add a local JSON semantic fallback if Pinecone or Groq is unavailable |
-| Asset coverage | 8 extracted figures | Ship the complete generated `data/images` set |
-| Deployment packaging | Docker Compose placeholder | Add production images, CORS policy, and reverse proxy |
+| Scientific corpus coverage | 17 validated PSI records (BASS-II, Saffire, FLEX/FLEX-2, SAME, lunar, EVA, ISS) plus indexed BASS-II passages | Expand curated ingestion to the full Saffire and Mir corpora |
+| Mission environment filters | ISS, Lunar Base (30-34% O2 / 10.2 psi), Spacesuit EVA (100% O2 / 4.3 psi), All | Add Mars habitat parameters |
+| Fire-safety pillar tagging | Prevention, Detection and Suppression filters on curated and vector metadata | Add pillar-aware telemetry summaries |
+| Interactive risk modelling | Oxygen/pressure Relative Flammability Index with ISS, Lunar Base and EVA presets | Calibrate against additional PSI test points |
+| Rate limiting | `slowapi` at 5 requests/minute per client IP | Raise the limit behind an authenticated gateway |
+| Prompt-injection defence | Query length (5-500 chars) and enum validation | Add prompt-pattern screening |
+| Error handling | Server-side logging with sanitized client errors, plus curated-only fallback | Add structured tracing |
+| Offline demo fallback | Curated records serve when Pinecone is unavailable | Add an offline LLM stub for demos |
+| Test coverage | 98 pytest tests and 62 Vitest tests | Add live-endpoint smoke tests in CI |
+| Deployment packaging | Vite build + Uvicorn entrypoint | Add production images and a reverse proxy |
 
 ---
 

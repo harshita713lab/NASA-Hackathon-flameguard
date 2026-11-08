@@ -1,7 +1,28 @@
-@gitkeep
-venv
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+venv/
+backend/venv/
+
+# Environment and secrets
 .env
-__pycache__ 
+.env.*
+!.env.example
+
+# Node
+node_modules/
+dist/
+coverage/
+*.local
+
+# Logs
+*.log
+
+# Data artifacts (source PDFs and archives are not committed)
 backend/data/images.zip
-backend/data/raw/BASS-II Summary Report.pdf
-backend/data/raw
+backend/data/raw/*.pdf
+backend/data/chroma_db/*
+!backend/data/chroma_db/.gitkeep
