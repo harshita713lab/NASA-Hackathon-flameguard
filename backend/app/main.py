@@ -4,7 +4,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("FlameGuardAPI")
 import os
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
@@ -15,10 +15,23 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from pinecone import Pinecone
 
+# --- NEW: Rate Limiting Imports ---
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
 # Load environment variables
 load_dotenv()
 
+# 1. Initialize the Limiter (Tracks requests by user IP address)
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(title="NASA Space Apps - FlameGuard SI API")
+
+# 2. Attach Limiter to the FastAPI app
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 INDEX_NAME = "nasa-combustion-rag"
 
 # Figures extracted from the source PDFs live here and are referenced as data/images/<file>.png
@@ -26,19 +39,19 @@ IMAGES_DIR = Path(__file__).resolve().parent.parent / "data" / "images"
 IMAGES_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/static_images", StaticFiles(directory=IMAGES_DIR), name="static_images")
 
-# 1. Initialize Embeddings and Vector Store
+# 3. Initialize Embeddings and Vector Store
 print("Loading HuggingFace Inference for retrieval...")
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 vectorstore = PineconeVectorStore(index_name=INDEX_NAME, embedding=embeddings)
 
-# 2. Initialize the Groq LLM (Llama 3)
+# 4. Initialize the Groq LLM (Llama 3)
 llm = ChatGroq(
     api_key=os.getenv("GROQ_API_KEY"),
     model_name="openai/gpt-oss-20b", # Extremely fast inference
     temperature=0.0 # Deterministic output for scientific accuracy
 )
 
-# 3. The Super Intelligence Prompt Template
+# 5. The Super Intelligence Prompt Template
 system_prompt = (
     "You are a NASA Super Intelligence (SI) aerospace engineer specializing in microgravity fire safety. "
     "Use the provided scientific context from the Physical Science Informatics (PSI) database to answer the query. "
@@ -69,13 +82,14 @@ class SearchResponse(BaseModel):
 
 # --- API Endpoints ---
 @app.post("/api/search", response_model=SearchResponse)
-async def search_combustion_data(request: SearchRequest):
+@limiter.limit("5/minute") # 6. Apply Rate Limit: 5 requests per minute per IP
+async def search_combustion_data(request: Request, search_query: SearchRequest):
     try:
         # A. Retrieve context from Pinecone
-        search_kwargs = {"k": request.top_k}
-        if request.fuel_filter:
-            search_kwargs["filter"] = {"fuel_state": request.fuel_filter}
-        docs = vectorstore.similarity_search(request.query, **search_kwargs)
+        search_kwargs = {"k": search_query.top_k}
+        if search_query.fuel_filter:
+            search_kwargs["filter"] = {"fuel_state": search_query.fuel_filter}
+        docs = vectorstore.similarity_search(search_query.query, **search_kwargs)
 
         formatted_results = [
             SearchResult(
@@ -96,7 +110,7 @@ async def search_combustion_data(request: SearchRequest):
         chain = prompt_template | llm
         llm_response = chain.invoke({
             "context": context_text,
-            "query": request.query
+            "query": search_query.query
         })
         if llm_response:
             print("LLM response:", llm_response.content)
@@ -127,6 +141,7 @@ async def search_combustion_data(request: SearchRequest):
             status_code=500, 
             detail="An error occurred while processing your scientific query. Please try again later."
         )
+
 @app.get("/")
 def health_check():
     return {"status": "FlameGuard SI API is running"}
