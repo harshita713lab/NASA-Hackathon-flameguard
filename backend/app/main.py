@@ -1,3 +1,7 @@
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("FlameGuardAPI")
 import os
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
@@ -115,8 +119,14 @@ async def search_combustion_data(request: SearchRequest):
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
+        # Terminal/Logs mein exact error trace print hoga (Debugging ke liye)
+        logger.error(f"Search endpoint error: {str(e)}", exc_info=True)
+        
+        # User/Client ko sirf ek clean generic message jayega (Security ke liye)
+        raise HTTPException(
+            status_code=500, 
+            detail="An error occurred while processing your scientific query. Please try again later."
+        )
 @app.get("/")
 def health_check():
     return {"status": "FlameGuard SI API is running"}
