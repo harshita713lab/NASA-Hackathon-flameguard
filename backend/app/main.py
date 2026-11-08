@@ -6,10 +6,11 @@ import os
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional, Literal
 from dotenv import load_dotenv
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_pinecone import PineconeVectorStore
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
@@ -45,11 +46,22 @@ embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 vectorstore = PineconeVectorStore(index_name=INDEX_NAME, embedding=embeddings)
 
 # 4. Initialize the Groq LLM (Llama 3)
-llm = ChatGroq(
+primary_llm = ChatGroq(
     api_key=os.getenv("GROQ_API_KEY"),
     model_name="openai/gpt-oss-20b", # Extremely fast inference
     temperature=0.0 # Deterministic output for scientific accuracy
 )
+
+
+fallback_llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash",
+    google_api_key=os.getenv("GEMINI_API_KEY"),
+    temperature=0.0,
+    max_retries=1
+)
+
+llm= primary_llm.with_fallback([fallback_llm])
+
 
 # 5. The Super Intelligence Prompt Template
 system_prompt = (
@@ -66,9 +78,32 @@ prompt_template = ChatPromptTemplate.from_messages([
 
 # --- Pydantic Schemas ---
 class SearchRequest(BaseModel):
-    query: str
-    fuel_filter: Optional[str] = None
-    top_k: int = 4
+    # Enforce length and automatically strip whitespace
+    query: str = Field(
+        ..., 
+        min_length=5, 
+        max_length=500, 
+        description="The scientific question being asked. Max 500 characters."
+    )
+    
+    # Restrict to exact categories (adjust these based on your Pinecone metadata)
+    fuel_filter: Optional[Literal["Solid", "Liquid", "Gas"]] = None
+    
+    # Hardcap the Pinecone retrieval volume between 1 and 10 chunks
+    top_k: int = Field(
+        default=4, 
+        ge=1, 
+        le=10, 
+        description="Number of context chunks to retrieve. Max 10."
+    )
+
+    @field_validator('query')
+    def sanitize_query(cls, v):
+        # Prevent users from bypassing limits with repeating special characters or spaces
+        cleaned = ' '.join(v.split())
+        if len(cleaned) < 5:
+            raise ValueError("Query must contain at least 5 alphanumeric characters.")
+        return cleaned
 
 class SearchResult(BaseModel):
     text: str
