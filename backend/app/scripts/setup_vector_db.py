@@ -1,6 +1,6 @@
 import os
 import time
-import pymupdf
+import pymupdf4llm
 from dotenv import load_dotenv
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -15,25 +15,37 @@ INDEX_NAME = "nasa-combustion-rag"
 
 # Updated path to target backend/data/raw
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "raw")
-SAFFIRE_PDF = os.path.join(DATA_DIR, "saffire_report.pdf")
-MIR_PDF = os.path.join(DATA_DIR, "mir_space_station.pdf")
+BASS_PDF = os.path.join(DATA_DIR, "BASS-II Summary Report.pdf")
+
+# Create a dedicated folder for extracted images
+IMAGE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "images"))
+os.makedirs(IMAGE_DIR, exist_ok=True)
 
 def extract_text_from_pdf(pdf_path):
-    print(f"Reading {pdf_path}...")
-    text = ""
+    print(f"Reading {pdf_path} as Markdown and extracting images...")
     try:
-        doc = pymupdf.open(pdf_path)
-        for page in doc:
-            text += page.get_text()
+        # Extract markdown and save images to the IMAGE_DIR
+        md_text = pymupdf4llm.to_markdown(
+            pdf_path, 
+            write_images=True, 
+            image_path=IMAGE_DIR
+        )
+        
+        # Rewrite the local markdown image paths to point to your API's static route
+        normalized_image_dir = IMAGE_DIR.replace("\\", "/")
+        md_text = md_text.replace(f"{IMAGE_DIR}{os.sep}", "http://127.0.0.1:8000/static_images/")
+        md_text = md_text.replace(f"{normalized_image_dir}/", "http://127.0.0.1:8000/static_images/")
+        
+        return md_text
     except Exception as e:
         print(f"Error reading {pdf_path}: {e}")
-    return text
+        return ""
 
 def process_and_upload():
     # 1. Initialize Pinecone client
     pc = Pinecone(api_key=PINECONE_API_KEY)
     
-    # 2. FIX: Create a classic vector index programmatically to bypass the UI schema
+    # 2. Create a classic vector index programmatically
     if INDEX_NAME not in pc.list_indexes().names():
         print(f"Creating a classic vector index: '{INDEX_NAME}' via API...")
         pc.create_index(
@@ -45,7 +57,6 @@ def process_and_upload():
                 region="us-east-1"
             )
         )
-        # Wait for the index to boot up
         while not pc.describe_index(INDEX_NAME).status['ready']:
             time.sleep(1)
         print("Index is ready!")
@@ -63,20 +74,14 @@ def process_and_upload():
     
     documents = []
     
-    # 5. Process PDFs
-    if os.path.exists(SAFFIRE_PDF):
-        saffire_text = extract_text_from_pdf(SAFFIRE_PDF)
-        documents.extend(text_splitter.create_documents(
-            [saffire_text], 
-            metadatas=[{"experiment": "Saffire", "fuel_state": "Solid", "source": "saffire_report.pdf"}]
-        ))
-    
-    if os.path.exists(MIR_PDF):
-        mir_text = extract_text_from_pdf(MIR_PDF)
-        documents.extend(text_splitter.create_documents(
-            [mir_text], 
-            metadatas=[{"experiment": "Mir", "fuel_state": "Mixed", "source": "mir_space_station.pdf"}]
-        ))
+    # 5. Process BASS-II PDF
+    if os.path.exists(BASS_PDF):
+        bass_text = extract_text_from_pdf(BASS_PDF)
+        if bass_text:
+            documents.extend(text_splitter.create_documents(
+                [bass_text], 
+                metadatas=[{"experiment": "BASS-II", "fuel_state": "Solid", "source": "BASS-II Summary Report.pdf"}]
+            ))
         
     if not documents:
         print("No documents found.")

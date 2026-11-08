@@ -1,4 +1,7 @@
 @gitkeep
 venv
 .env
-__pycache__
+__pycache__ 
+backend/data/images.zip
+backend/data/raw/BASS-II Summary Report.pdf
+backend/data/raw
