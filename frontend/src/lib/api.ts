@@ -1,4 +1,10 @@
-import type { FuelFilter, SearchPayload, SearchResponse } from '../types'
+import type {
+  FuelFilter,
+  MissionFilter,
+  PillarFilter,
+  SearchPayload,
+  SearchResponse,
+} from '../types'
 
 const rawBase = (import.meta.env.VITE_API_URL ?? '').trim()
 const BASE = rawBase.replace(/\/+$/, '')
@@ -34,11 +40,15 @@ function withTimeout(timeout: number, external?: AbortSignal) {
 export async function runSearch(
   query: string,
   fuelFilter: FuelFilter,
+  mission: MissionFilter,
+  pillar: PillarFilter,
   topK: number,
   external?: AbortSignal,
 ): Promise<SearchResponse> {
   const payload: SearchPayload = { query, top_k: topK }
   if (fuelFilter !== 'All') payload.fuel_filter = fuelFilter
+  if (mission !== 'All') payload.mission = mission
+  if (pillar !== 'All') payload.pillar = pillar
 
   const { signal, clear } = withTimeout(SEARCH_TIMEOUT_MS, external)
 

@@ -3,6 +3,7 @@ import { CheckCircle2, Flame, PencilLine } from 'lucide-react'
 import { AnswerPanel } from './components/AnswerPanel'
 import { EvidenceLedger } from './components/EvidenceLedger'
 import { QueryConsole } from './components/QueryConsole'
+import { RiskSimulator } from './components/RiskSimulator'
 import { Sidebar } from './components/Sidebar'
 import { ErrorState, IdleState, LoadingState } from './components/States'
 import { TelemetryPanel } from './components/TelemetryPanel'
@@ -11,7 +12,7 @@ import { useBackendStatus } from './hooks/useBackendStatus'
 import { useSearchHistory } from './hooks/useSearchHistory'
 import { backendLabel, docsUrl, runSearch } from './lib/api'
 import { cn, uid } from './lib/format'
-import type { FuelFilter, SearchRun } from './types'
+import type { FuelFilter, MissionFilter, PillarFilter, SearchRun } from './types'
 
 function Backdrop() {
   return (
@@ -39,6 +40,16 @@ function ResultsHeader({ run, onEdit }: { run: SearchRun; onEdit: () => void }) 
         </h2>
       </div>
       <div className="flex flex-wrap items-center gap-2">
+        {run.mission && run.mission !== 'All' && (
+          <span className="chip border-ember/20 bg-ember/[0.06] py-1 text-[10px] text-ember-soft">
+            {run.mission}
+          </span>
+        )}
+        {run.pillar && run.pillar !== 'All' && (
+          <span className="chip border-telemetry/20 bg-telemetry/[0.06] py-1 text-[10px] text-telemetry">
+            {run.pillar}
+          </span>
+        )}
         <span className="chip border-white/[0.08] py-1 text-[10px]">
           {run.fuelFilter === 'All' ? 'All fuel states' : `${run.fuelFilter} only`}
         </span>
@@ -55,6 +66,8 @@ function ResultsHeader({ run, onEdit }: { run: SearchRun; onEdit: () => void }) 
 export default function App() {
   const [query, setQuery] = useState('')
   const [fuel, setFuel] = useState<FuelFilter>('All')
+  const [mission, setMission] = useState<MissionFilter>('All')
+  const [pillar, setPillar] = useState<PillarFilter>('All')
   const [topK, setTopK] = useState(4)
   const [loading, setLoading] = useState(false)
   const [run, setRun] = useState<SearchRun | null>(null)
@@ -109,11 +122,13 @@ export default function App() {
 
     const started = performance.now()
     try {
-      const response = await runSearch(trimmed, fuel, topK, controller.signal)
+      const response = await runSearch(trimmed, fuel, mission, pillar, topK, controller.signal)
       const record: SearchRun = {
         id: uid(),
         query: trimmed,
         fuelFilter: fuel,
+        mission,
+        pillar,
         topK,
         response,
         latencyMs: performance.now() - started,
@@ -129,7 +144,7 @@ export default function App() {
     } finally {
       if (!controller.signal.aborted) setLoading(false)
     }
-  }, [query, fuel, topK, loading, add])
+  }, [query, fuel, mission, pillar, topK, loading, add])
 
   const restoreRun = (record: SearchRun) => {
     abortRef.current?.abort()
@@ -137,6 +152,8 @@ export default function App() {
     setError(null)
     setQuery(record.query)
     setFuel(record.fuelFilter)
+    setMission(record.mission ?? 'All')
+    setPillar(record.pillar ?? 'All')
     setTopK(record.topK)
     setRun(record)
     window.setTimeout(() => {
@@ -193,11 +210,19 @@ export default function App() {
             onQueryChange={setQuery}
             fuel={fuel}
             onFuelChange={setFuel}
+            mission={mission}
+            onMissionChange={setMission}
+            pillar={pillar}
+            onPillarChange={setPillar}
             topK={topK}
             onTopKChange={setTopK}
             onSubmit={execute}
             loading={loading}
           />
+
+          <div className="mt-6 sm:mt-8 animate-rise">
+            <RiskSimulator />
+          </div>
 
           <div aria-live="polite">
             {error ? (

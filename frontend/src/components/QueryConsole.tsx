@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import { ArrowUpRight, Loader2, ShieldCheck, Sparkles, TerminalSquare } from 'lucide-react'
-import type { FuelFilter } from '../types'
+import type { FuelFilter, MissionFilter, PillarFilter } from '../types'
 import { EXAMPLES } from '../lib/examples'
 import { cn } from '../lib/format'
 import { StackReadout } from './Brand'
@@ -12,11 +12,36 @@ const FUELS: Array<{ id: FuelFilter; dot: string }> = [
   { id: 'Mixed', dot: 'bg-violet-400' },
 ]
 
+const MISSIONS: Array<{ id: MissionFilter; detail: string; dot: string }> = [
+  { id: 'All', detail: 'Any environment', dot: 'bg-white/50' },
+  { id: 'ISS', detail: '21% O₂ · 14.7 psi', dot: 'bg-telemetry' },
+  { id: 'Lunar Base', detail: '30% O₂ · 10.2 psi', dot: 'bg-ember' },
+  { id: 'Spacesuit EVA', detail: '100% O₂ · 4.3 psi', dot: 'bg-violet-400' },
+]
+
+const PILLARS: Array<{ id: PillarFilter; detail: string }> = [
+  { id: 'All', detail: 'Every safety layer' },
+  { id: 'Prevention', detail: 'Materials + O₂ limits' },
+  { id: 'Detection', detail: 'Smoke sensing' },
+  { id: 'Suppression', detail: 'Extinguishment' },
+]
+
+const PILLAR_ACTIVE: Record<PillarFilter, string> = {
+  All: 'border-white/20 bg-white/[0.07] text-white',
+  Prevention: 'border-ember/30 bg-ember/[0.1] text-ember-soft',
+  Detection: 'border-telemetry/30 bg-telemetry/[0.1] text-telemetry',
+  Suppression: 'border-violet-400/30 bg-violet-400/[0.1] text-violet-300',
+}
+
 interface QueryConsoleProps {
   query: string
   onQueryChange: (value: string) => void
   fuel: FuelFilter
   onFuelChange: (value: FuelFilter) => void
+  mission: MissionFilter
+  onMissionChange: (value: MissionFilter) => void
+  pillar: PillarFilter
+  onPillarChange: (value: PillarFilter) => void
   topK: number
   onTopKChange: (value: number) => void
   onSubmit: () => void
@@ -28,6 +53,10 @@ export function QueryConsole({
   onQueryChange,
   fuel,
   onFuelChange,
+  mission,
+  onMissionChange,
+  pillar,
+  onPillarChange,
   topK,
   onTopKChange,
   onSubmit,
@@ -132,6 +161,64 @@ export function QueryConsole({
               <ArrowUpRight className="size-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 hidden sm:inline" />
             </button>
           ))}
+        </div>
+
+        <div className="mt-3.5 grid gap-4 border-t border-white/[0.06] pt-4 sm:grid-cols-2">
+          <div>
+            <div className="flex items-center justify-between gap-3">
+              <p className="mono-label">Mission environment</p>
+              <span className="font-mono text-[8px] uppercase tracking-wider text-dim/60">
+                O₂ / pressure
+              </span>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {MISSIONS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => onMissionChange(option.id)}
+                  aria-pressed={mission === option.id}
+                  className={cn(
+                    'flex min-w-0 flex-1 basis-[calc(50%-0.375rem)] items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-left transition-colors sm:basis-auto touch-manipulation',
+                    mission === option.id
+                      ? 'border-ember/30 bg-ember/[0.09] text-ember-soft'
+                      : 'border-white/[0.07] bg-white/[0.02] text-muted hover:border-white/[0.14] hover:text-ink',
+                  )}
+                >
+                  <span className={cn('size-1.5 shrink-0 rounded-full', option.dot)} />
+                  <span className="min-w-0">
+                    <span className="block truncate text-[11px] font-medium">{option.id}</span>
+                    <span className="block truncate font-mono text-[8px] text-dim">
+                      {option.detail}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="mono-label">Safety pillar</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {PILLARS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => onPillarChange(option.id)}
+                  aria-pressed={pillar === option.id}
+                  className={cn(
+                    'flex min-w-0 flex-1 basis-[calc(50%-0.375rem)] flex-col rounded-lg border px-2.5 py-1.5 text-left transition-colors sm:basis-auto touch-manipulation',
+                    pillar === option.id
+                      ? PILLAR_ACTIVE[option.id]
+                      : 'border-white/[0.07] bg-white/[0.02] text-muted hover:border-white/[0.14] hover:text-ink',
+                  )}
+                >
+                  <span className="truncate text-[11px] font-medium">{option.id}</span>
+                  <span className="truncate font-mono text-[8px] text-dim">{option.detail}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="mt-5 sm:mt-6 flex flex-col gap-4 sm:gap-5 border-t border-white/[0.06] pt-4 sm:pt-5 lg:flex-row lg:items-end lg:justify-between">

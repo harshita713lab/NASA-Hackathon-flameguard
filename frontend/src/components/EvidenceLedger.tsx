@@ -21,6 +21,12 @@ const FUEL_TONE: Record<string, string> = {
   Mixed: 'border-violet-400/25 bg-violet-400/[0.08] text-violet-300',
 }
 
+const PILLAR_TONE: Record<string, string> = {
+  Prevention: 'border-ember/25 bg-ember/[0.08] text-ember-soft',
+  Detection: 'border-telemetry/25 bg-telemetry/[0.07] text-telemetry',
+  Suppression: 'border-violet-400/25 bg-violet-400/[0.08] text-violet-300',
+}
+
 function FuelPill({ state }: { state: string }) {
   return (
     <span
@@ -30,6 +36,20 @@ function FuelPill({ state }: { state: string }) {
       )}
     >
       {state || 'Unknown'}
+    </span>
+  )
+}
+
+function PillarPill({ pillar }: { pillar?: string | null }) {
+  if (!pillar) return null
+  return (
+    <span
+      className={cn(
+        'shrink-0 rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em]',
+        PILLAR_TONE[pillar] ?? 'border-white/10 bg-white/[0.04] text-muted',
+      )}
+    >
+      {pillar}
     </span>
   )
 }
@@ -77,6 +97,8 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
     const payload = {
       query: run.query,
       fuel_filter: run.fuelFilter === 'All' ? null : run.fuelFilter,
+      mission: run.mission && run.mission !== 'All' ? run.mission : null,
+      pillar: run.pillar && run.pillar !== 'All' ? run.pillar : null,
       top_k: run.topK,
       latency_ms: Math.round(run.latencyMs),
       generated_at: new Date(run.createdAt).toISOString(),
@@ -230,7 +252,10 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
                       <span className="truncate">{result.experiment || 'Unknown'}</span>
                     </span>
                   </div>
-                  <FuelPill state={result.fuel_state} />
+                  <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                    <PillarPill pillar={result.pillar} />
+                    <FuelPill state={result.fuel_state} />
+                  </div>
                 </div>
 
                 {isOpen ? (
@@ -244,12 +269,22 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
                 )}
 
                 <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/[0.05] pt-3">
-                  <p className="flex min-w-0 items-center gap-1.5 font-mono text-[9.5px] text-dim">
-                    <FileText className="size-3 shrink-0" />
-                    <span className="truncate" title={result.source}>
-                      {result.source || 'Unknown source'}
-                    </span>
-                  </p>
+                  <div className="min-w-0">
+                    <p className="flex min-w-0 items-center gap-1.5 font-mono text-[9.5px] text-dim">
+                      <FileText className="size-3 shrink-0" />
+                      <span
+                        className="truncate"
+                        title={[result.source, result.citation].filter(Boolean).join(' — ')}
+                      >
+                        {result.source || 'Unknown source'}
+                      </span>
+                    </p>
+                    {result.environments && result.environments.length > 0 && (
+                      <p className="mt-1 truncate font-mono text-[8.5px] uppercase tracking-wider text-dim/60">
+                        {result.environments.join(' · ')}
+                      </p>
+                    )}
+                  </div>
                   <div className="flex shrink-0 items-center gap-0.5">
                     <button
                       type="button"
@@ -289,7 +324,7 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
             <table className="w-full min-w-[720px] sm:min-w-[760px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-white/[0.08] bg-white/[0.02]">
-                  {['#', 'Experiment', 'Fuel', 'Source', 'Passage excerpt', ''].map((header) => (
+                  {['#', 'Experiment', 'Fuel', 'Pillar', 'Source', 'Passage excerpt', ''].map((header) => (
                     <th
                       key={header}
                       className="px-4 py-3 font-mono text-[9px] font-medium uppercase tracking-[0.16em] text-dim"
@@ -314,6 +349,9 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
                         <td className="px-4 py-3">
                           <FuelPill state={result.fuel_state} />
                         </td>
+                        <td className="px-4 py-3">
+                          <PillarPill pillar={result.pillar} />
+                        </td>
                         <td className="max-w-[200px] truncate px-4 py-3 font-mono text-[10px] text-muted">
                           {result.source || 'Unknown'}
                         </td>
@@ -337,7 +375,7 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
                       </tr>
                       {isOpen && (
                         <tr className="border-b border-white/[0.05] bg-black/20">
-                          <td colSpan={6} className="px-4 py-4">
+                          <td colSpan={7} className="px-4 py-4">
                             <Markdown text={result.text} compact />
                             <button
                               type="button"

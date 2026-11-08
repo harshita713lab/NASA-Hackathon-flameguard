@@ -1,0 +1,201 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-11-08",
+  "description": "Curated NASA PSI microgravity fire-safety reference set. Values are taken from NASA technical reports and mission summaries; each record carries its citation. Used as an offline-safe retrieval layer and as seed data for the Pinecone index.",
+  "sources": [
+    "NASA/TM-20210011385, BASS-II Summary Report",
+    "NASA Saffire (Spacecraft Fire Experiment) mission overview, eoportal",
+    "NASA FLEX / FLEX-2 Flame Extinguishment Experiment overview",
+    "NASA SAME / SAME-R Smoke Aerosol Measurement Experiment overview",
+    "NASA Space Apps Challenge 2026 FlameGuard brief (mission reference atmospheres)"
+  ],
+  "documents": [
+    {
+      "id": "bass2-thin-pmma-steady-spread",
+      "experiment": "BASS-II",
+      "fuel_state": "Solid",
+      "pillar": "Prevention",
+      "environments": ["ISS"],
+      "source": "BASS-II Summary Report (NASA/TM-20210011385)",
+      "citation": "NASA/TM-20210011385, Section 2.1.2 Results",
+      "text": "In microgravity aboard the ISS, a 100-micrometre-thick PMMA (polymethylmethacrylate) film about 1-2 cm wide sustained a steady opposed-flow flame spread rate of 2.2 mm/s at roughly 21 percent oxygen and ISS cabin pressure. When the forced flow was abruptly cut off, the flame extinguished within about 2 seconds, showing that the ventilation flow is what sustains the flame. Normal-gravity downward spread over the same material at 21 percent O2 gives 2.8, 1.6, 1.2 and 0.9 mm/s for 100, 200, 300 and 400 micrometre thicknesses respectively.",
+      "keywords": ["PMMA", "polymethylmethacrylate", "flame spread rate", "2.2 mm/s", "opposed flow", "thin fuel", "microgravity", "ISS", "21 percent oxygen", "extinction"]
+    },
+    {
+      "id": "bass2-radiative-extinction-velocity",
+      "experiment": "BASS-II",
+      "fuel_state": "Solid",
+      "pillar": "Prevention",
+      "environments": ["ISS"],
+      "source": "BASS-II Summary Report (NASA/TM-20210011385)",
+      "citation": "NASA/TM-20210011385, Section 2.2.5 Extinction Velocity",
+      "text": "Radiative extinction of opposed-flow flames over thin PMMA sheets occurs at a critical flow velocity of about 1 cm/s for 100, 200 and 300 micrometre thicknesses and about 1.5 cm/s for 400 micrometres at 21 percent oxygen. The extinction velocity is largely independent of fuel thickness. At 16 percent oxygen the computed and experimental extinction velocity rises to about 3.5 cm/s, so a weaker oxidizer flow is enough to blow the flame out. This defines a lower flammability boundary that spacecraft ventilation design must respect.",
+      "keywords": ["critical flow velocity", "extinction velocity", "radiative extinction", "1 cm/s", "3.5 cm/s", "16 percent oxygen", "flammability boundary", "ventilation", "PMMA"]
+    },
+    {
+      "id": "bass2-oxygen-envelope",
+      "experiment": "BASS-II",
+      "fuel_state": "Solid",
+      "pillar": "Prevention",
+      "environments": ["ISS"],
+      "source": "BASS-II Summary Report (NASA/TM-20210011385)",
+      "citation": "NASA/TM-20210011385, Section 5.4 Oxygen Concentration Analysis",
+      "text": "BASS-II varied the oxygen concentration in the Microgravity Science Glovebox working volume from ambient ISS levels of about 21 percent down to about 14 percent for very-near-limit flames. A representative microgravity test used 20.7 percent O2, 1 atm and an opposed-flow velocity of 2.5 cm/s. At 16 percent O2 the extinction velocity increased to 3.5 cm/s compared with about 1.5 cm/s at 21 percent O2, and spread rates dropped significantly. These values bound the oxygen range in which sustained PMMA flame spread is possible.",
+      "keywords": ["oxygen concentration", "21 percent O2", "20.7 percent", "14 percent O2", "16 percent O2", "pressure", "1 atm", "PMMA", "flammability limit"]
+    },
+    {
+      "id": "bass2-thick-pmma-slabs",
+      "experiment": "BASS-II",
+      "fuel_state": "Solid",
+      "pillar": "Prevention",
+      "environments": ["ISS"],
+      "source": "BASS-II Summary Report (NASA/TM-20210011385), Figure 5.8",
+      "citation": "NASA/TM-20210011385, Section 5.3 and Figure 5.8",
+      "text": "Two-sided BASS-II tests used 1-5 mm thick PMMA slabs, 1-2 cm wide, over opposed-flow velocities of 2.5-25 cm/s. Measured flame spread rates in Figure 5.8 are roughly 0-0.15 mm/s, with the highest rates at about 10 cm/s for the 1 mm samples. Thicker samples spread more slowly. This dataset shows that thick PMMA can sustain a slow creeping flame in microgravity even at low forced-flow speeds.",
+      "keywords": ["thick PMMA", "1-5 mm", "PMMA slab", "opposed flow", "2.5-25 cm/s", "0.15 mm/s", "two-sided test", "Figure 5.8", "flame spread rate"]
+    },
+    {
+      "id": "bass2-pmma-rod-limits",
+      "experiment": "BASS-II",
+      "fuel_state": "Solid",
+      "pillar": "Prevention",
+      "environments": ["ISS"],
+      "source": "BASS-II Summary Report (NASA/TM-20210011385)",
+      "citation": "NASA/TM-20210011385, Sections 4 and 6.1 (PMMA rod flammability)",
+      "text": "BASS-II tested clear cast PMMA rods with diameters of 6.35, 9.525 and 12.7 mm in forced flows from 0 to 55 cm/s. In one test at 16.3 percent O2 and 5 cm/s the cap-shaped flame regressed the hemispherical tip to a flat surface and then extinguished without spreading along the rod. Near the quenching limit the flame becomes faint and surface reradiation dominates. These rod tests define a flammability boundary for thick cylindrical PMMA in axial stagnation flow.",
+      "keywords": ["PMMA rod", "6.35 mm", "9.525 mm", "12.7 mm", "0-55 cm/s", "16.3 percent O2", "quenching limit", "axial stagnation flow", "flammability boundary"]
+    },
+    {
+      "id": "bass2-nomex-barrier",
+      "experiment": "BASS-II",
+      "fuel_state": "Solid",
+      "pillar": "Prevention",
+      "environments": ["ISS"],
+      "source": "BASS-II Summary Report (NASA/TM-20210011385)",
+      "citation": "NASA/TM-20210011385, Section 3.1 Nomex Flammability",
+      "text": "Three Nomex (DuPont Nomex III) samples flown in BASS-II did not ignite, supporting its use as an ISS fire barrier. A wax candle test in the same campaign did ignite in opposed flow and burned at five different flow velocities, so the non-ignition of Nomex is a material result rather than a failed test. Nomex barriers are part of the prevention layer for spacecraft fire safety.",
+      "keywords": ["Nomex", "fire barrier", "did not ignite", "non-flammable", "ISS", "prevention", "material selection", "candle", "opposed flow"]
+    },
+    {
+      "id": "bass2-flow-duct-envelope",
+      "experiment": "BASS-II",
+      "fuel_state": "Solid",
+      "pillar": "Prevention",
+      "environments": ["ISS"],
+      "source": "BASS-II Summary Report (NASA/TM-20210011385)",
+      "citation": "NASA/TM-20210011385, Section 1.2 Experiment Description",
+      "text": "The BASS-II flow duct produced forced velocities from 0 to about 55 cm/s with no restrictors and about 35 cm/s with two inlet restrictors. Oxygen was controlled between about 14 and 21 percent. This flow and oxygen envelope is the test space used to map microgravity flame spread, extinction and flammability limits for PMMA, Nomex and fabric samples.",
+      "keywords": ["flow duct", "55 cm/s", "35 cm/s", "forced flow", "oxygen 14-21 percent", "test envelope", "microgravity", "flammability"]
+    },
+    {
+      "id": "saffire-large-scale-cloth",
+      "experiment": "Saffire",
+      "fuel_state": "Solid",
+      "pillar": "Prevention",
+      "environments": ["ISS"],
+      "source": "NASA Saffire (Spacecraft Fire Experiment) mission overview",
+      "citation": "NASA Saffire mission overview, Saffire-I/II/III",
+      "text": "Saffire is a series of large-scale spacecraft fire experiments conducted inside an uncrewed Cygnus cargo vehicle after it departed the ISS. Saffire-I and Saffire-III burned a 40 x 100 cm SIBAL sample made of a cotton-fiberglass blend at approximately 21 percent oxygen for several hours. Saffire-II burned nine smaller 5 x 30 cm samples. These tests provide the large-scale flame growth and spread data that small ISS glovebox experiments cannot reproduce.",
+      "keywords": ["Saffire", "SIBAL", "cotton fiberglass", "40 x 100 cm", "5 x 30 cm", "21 percent oxygen", "Cygnus", "large-scale fire", "spacecraft fire safety", "flame growth"]
+    },
+    {
+      "id": "saffire-fire-safety-purpose",
+      "experiment": "Saffire",
+      "fuel_state": "Solid",
+      "pillar": "Detection",
+      "environments": ["ISS"],
+      "source": "NASA Saffire (Spacecraft Fire Experiment) mission overview",
+      "citation": "NASA Saffire mission overview",
+      "text": "Saffire data are used to validate spacecraft fire-growth models, material flammability screening, smoke detector placement and suppression strategies for future exploration vehicles. Because the tests run in a depressurized cargo craft, they can safely study fires far larger than those allowed inside the ISS. The results inform how quickly a spacecraft fire could grow and how much time a crew would have to respond.",
+      "keywords": ["Saffire", "fire growth model", "smoke detector placement", "suppression strategy", "crew response", "spacecraft fire safety", "validation", "exploration vehicle"]
+    },
+    {
+      "id": "flex-droplet-suppression",
+      "experiment": "FLEX",
+      "fuel_state": "Liquid",
+      "pillar": "Suppression",
+      "environments": ["ISS"],
+      "source": "NASA FLEX / FLEX-2 Flame Extinguishment Experiment overview",
+      "citation": "NASA FLEX and FLEX-2 experiment overview",
+      "text": "FLEX and FLEX-2 studied burning liquid-fuel droplets in microgravity aboard the ISS, including heptane and methanol droplets. The experiments examined flame extinction, cool-flame behavior and the effectiveness of inert-gas dilution with carbon dioxide and helium as suppression agents. Results inform the design of spacecraft extinguishers and the oxygen/diluent limits needed to suppress a fire in low gravity.",
+      "keywords": ["FLEX", "FLEX-2", "droplet combustion", "heptane", "methanol", "suppression", "carbon dioxide", "CO2", "helium", "inert gas", "extinguishment", "cool flame"]
+    },
+    {
+      "id": "flex-suppression-design",
+      "experiment": "FLEX-2",
+      "fuel_state": "Liquid",
+      "pillar": "Suppression",
+      "environments": ["ISS"],
+      "source": "NASA FLEX / FLEX-2 Flame Extinguishment Experiment overview",
+      "citation": "NASA FLEX-2 experiment overview",
+      "text": "Microgravity droplet experiments show that extinguishment depends on oxygen concentration, inert diluent concentration and the flow field, not only on fuel type. CO2 and helium dilution reduce the oxidizer available to the flame and can produce extinction; the required agent concentration differs from normal gravity because buoyant plume transport is absent. This is why spacecraft suppression systems cannot simply reuse terrestrial design values.",
+      "keywords": ["FLEX-2", "suppression", "extinguishing concentration", "CO2", "helium", "oxygen concentration", "diluent", "microgravity", "droplet", "fire extinguisher"]
+    },
+    {
+      "id": "same-smoke-characterization",
+      "experiment": "SAME",
+      "fuel_state": "Mixed",
+      "pillar": "Detection",
+      "environments": ["ISS"],
+      "source": "NASA SAME / SAME-R Smoke Aerosol Measurement Experiment overview",
+      "citation": "NASA SAME and SAME-R experiment overview",
+      "text": "The Smoke Aerosol Measurement Experiment (SAME) characterized smoke particles produced by overheated spacecraft materials aboard the ISS. Microgravity smoke can have different particle size distributions and transport behavior than terrestrial smoke, so detector response cannot be assumed to match Earth-based fire codes. SAME and SAME-R data support selection and placement of spacecraft smoke detectors.",
+      "keywords": ["SAME", "SAME-R", "smoke detection", "smoke aerosol", "particle size", "spacecraft smoke detector", "microgravity", "fire detection", "overheated materials"]
+    },
+    {
+      "id": "same-detector-selection",
+      "experiment": "SAME",
+      "fuel_state": "Mixed",
+      "pillar": "Detection",
+      "environments": ["ISS"],
+      "source": "NASA SAME / NIST spacecraft smoke detector studies",
+      "citation": "NASA SAME overview; NIST/NASA smoke detector performance study",
+      "text": "Spacecraft smoke detection is complicated by low-gravity particle transport and by the variety of materials that can overheat. Studies of ISS smoke particulates show that no single detector type performs best for every smoke source; ionization, photoelectric and particle-counting sensors have different sensitivities. A robust detection layer therefore combines sensor types and accounts for the ventilation flow that carries smoke to the detector.",
+      "keywords": ["smoke detector", "ionization", "photoelectric", "particle counter", "detection", "ventilation", "spacecraft", "SAME", "fire safety"]
+    },
+    {
+      "id": "lunar-base-atmosphere",
+      "experiment": "Lunar Base",
+      "fuel_state": "Mixed",
+      "pillar": "Prevention",
+      "environments": ["Lunar Base"],
+      "source": "NASA Space Apps Challenge 2026 FlameGuard brief",
+      "citation": "NASA Space Apps Challenge 2026 challenge brief, mission environments",
+      "text": "A lunar surface habitat is baselined at 30-34 percent oxygen and 10.2 psi total pressure, giving an oxygen partial pressure of roughly 3.1-3.5 psi. The oxygen mole fraction is about 1.4-1.6 times that of sea-level air (21 percent at 14.7 psi), which raises the flammability of many materials and narrows the margin between a small ignition and a sustained fire. Prevention therefore depends on material screening at the worst-case oxygen concentration, control of ignition sources and ventilation-aware layout.",
+      "keywords": ["lunar base", "lunar habitat", "30 percent oxygen", "34 percent oxygen", "10.2 psi", "oxygen partial pressure", "flammability", "material screening", "prevention", "Artemis"]
+    },
+    {
+      "id": "spacesuit-eva-atmosphere",
+      "experiment": "Spacesuit EVA",
+      "fuel_state": "Mixed",
+      "pillar": "Prevention",
+      "environments": ["Spacesuit EVA"],
+      "source": "NASA Space Apps Challenge 2026 FlameGuard brief",
+      "citation": "NASA Space Apps Challenge 2026 challenge brief, mission environments",
+      "text": "A spacesuit EVA environment uses 100 percent oxygen at 4.3 psi, which is an oxygen partial pressure of 4.3 psi and an oxygen mole fraction about 4.8 times that of sea-level air. Pure oxygen dramatically increases the flammability of suits, fabrics, seals and equipment, so spacesuit materials must pass strict oxygen-compatibility and flammability screening. Prevention for EVA focuses on material selection, oxygen-compatible lubricants and eliminating ignition sources.",
+      "keywords": ["spacesuit", "EVA", "100 percent oxygen", "4.3 psi", "pure oxygen", "oxygen compatibility", "flammability", "material selection", "prevention"]
+    },
+    {
+      "id": "iss-atmosphere-baseline",
+      "experiment": "ISS",
+      "fuel_state": "Mixed",
+      "pillar": "Prevention",
+      "environments": ["ISS"],
+      "source": "NASA Space Apps Challenge 2026 FlameGuard brief",
+      "citation": "NASA Space Apps Challenge 2026 challenge brief, mission environments",
+      "text": "The International Space Station cabin is maintained near 21 percent oxygen at 14.7 psi, an oxygen partial pressure of about 3.09 psi. This is the baseline against which lunar habitat (30-34 percent O2 at 10.2 psi) and spacesuit EVA (100 percent O2 at 4.3 psi) fire risk should be compared. Higher oxygen mole fraction, not total pressure alone, is the dominant driver of material flammability.",
+      "keywords": ["ISS", "21 percent oxygen", "14.7 psi", "3.09 psi oxygen partial pressure", "baseline", "flammability comparison", "space station"]
+    },
+    {
+      "id": "mission-atmosphere-contrast",
+      "experiment": "Mission Environments",
+      "fuel_state": "Mixed",
+      "pillar": "Prevention",
+      "environments": ["ISS", "Lunar Base", "Spacesuit EVA"],
+      "source": "NASA Space Apps Challenge 2026 FlameGuard brief",
+      "citation": "NASA Space Apps Challenge 2026 challenge brief, mission environments",
+      "text": "Comparing mission atmospheres: ISS uses 21 percent O2 at 14.7 psi; a lunar habitat uses 30-34 percent O2 at 10.2 psi; a spacesuit EVA uses 100 percent O2 at 4.3 psi. The oxygen mole fraction rises from 0.21 to about 0.30-0.34 to 1.00 respectively. Because material flammability is driven strongly by oxygen concentration, the same material can be acceptable on ISS but marginal in a lunar habitat and unacceptable in a pure-oxygen suit.",
+      "keywords": ["mission comparison", "ISS", "lunar base", "spacesuit EVA", "oxygen mole fraction", "flammability", "material acceptability", "30 percent O2", "100 percent O2", "10.2 psi", "4.3 psi"]
+    }
+  ]
+}
