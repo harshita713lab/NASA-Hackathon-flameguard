@@ -91,40 +91,39 @@ def retrieve_fallback(state: GraphState) -> GraphState:
 import re # Add this import at the top of nodes.py
 
 def generate_synthesis(state: GraphState) -> GraphState:
-    """Formats context, deduplicates visuals, and calls Groq Llama 3."""
+    """Formats context, enforces NASA physics constraints, deduplicates visuals, and calls Groq Llama 3."""
     
-    # --- PROMPT UPDATE: Added constraint to never repeat visuals ---
     system_prompt = (
         "You are a NASA Super Intelligence (SI) aerospace engineer specializing in microgravity fire safety. "
         "Use the provided scientific context from the Physical Science Informatics (PSI) database to answer the query. "
-        "CRITICAL INSTRUCTION FOR VISUALS: If the context contains Markdown image tags (e.g., ![Image](http...)), "
-        "you MUST include those exact Markdown image tags in your synthesized answer so the user can see them. "
-        "Ensure each unique image is only displayed exactly ONCE. Never repeat the same image. "
+        "\n\nCRITICAL DOMAIN CONSTRAINTS:"
+        "\n1. LUNAR BASE & SPACESUITS: When evaluating flammability, explicitly factor in that Spacesuits operate at 100% O2 (4.3 psi), and future Lunar Bases will operate at >30% O2 (10.2 psi). Compare this against Earth's 21% O2 baseline."
+        "\n2. HARDWARE: Distinguish between MSG (Microgravity Science Glovebox) and CIR (Combustion Integrated Rack) experiments."
+        "\n3. EARTH APPLICATIONS: If requested, explicitly map microgravity combustion findings to terrestrial applications (e.g., fine-water-mist extinguishers, smoke detection)."
+        "\n4. STRUCTURE: When asked to compare investigations, proactively generate Markdown tables mapping differences in fuels, airflow, and O2 concentrations. Rank findings by relevance to habitable environments."
+        "\n\nCRITICAL INSTRUCTION FOR VISUALS: If the context contains Markdown image tags (e.g., ![Image](http...)), "
+        "you MUST include those exact Markdown image tags in your synthesized answer. Ensure each unique image is only displayed exactly ONCE. "
         "Never apologize or state that you cannot display images. "
-        "If the context does not contain the answer, state that the data is not available. "
         "\n\nContext:\n{context}"
     )
+    
     prompt_template = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
         ("human", "{query}")
     ])
     
-    # --- ARCHITECTURE UPDATE: Regex Deduplication ---
+    # --- ARCHITECTURE UPDATE: Regex Deduplication (Keep your existing logic here) ---
     seen_images = set()
     cleaned_chunks = []
     
     for chunk in state["retrieved_chunks"]:
         text = chunk.get("text", "")
-        
-        # Find all markdown image tags: matches ![...](...) or ![](...)
         img_tags = re.findall(r'!\[.*?\]\(.*?\)', text)
         
         for tag in img_tags:
             if tag in seen_images:
-                # If we already have this image, erase the duplicate from this chunk
                 text = text.replace(tag, "")
             else:
-                # First time seeing this image, add it to our tracker
                 seen_images.add(tag)
                 
         cleaned_chunks.append(f"Experiment: {chunk.get('experiment')}\nData: {text.strip()}")

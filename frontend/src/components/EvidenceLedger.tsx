@@ -13,6 +13,7 @@ import {
 import type { SearchRun } from '../types'
 import { cn } from '../lib/format'
 import { highlightTerms, queryTerms } from '../lib/highlight'
+import { Markdown } from './Markdown'
 
 const FUEL_TONE: Record<string, string> = {
   Solid: 'border-ember/25 bg-ember/[0.08] text-ember-soft',
@@ -219,7 +220,7 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
             return (
               <article
                 key={`${sourceIndex}-${result.source}`}
-                className="group relative flex flex-col rounded-xl border border-white/[0.06] bg-panel/60 p-4 transition-colors hover:border-white/[0.12]"
+                className="group relative flex min-w-0 flex-col rounded-xl border border-white/[0.06] bg-panel/60 p-4 transition-colors hover:border-white/[0.12]"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
@@ -232,15 +233,15 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
                   <FuelPill state={result.fuel_state} />
                 </div>
 
-                <p
-                  className={cn(
-                    'mt-3 text-[12.5px] leading-relaxed text-muted',
-                    !isOpen && 'ledger-text',
-                    isOpen && 'text-ink/80',
-                  )}
-                >
-                  {highlightTerms(result.text, terms)}
-                </p>
+                {isOpen ? (
+                  <div className="mt-3 text-[12.5px] leading-relaxed text-ink/80">
+                    <Markdown text={result.text} compact />
+                  </div>
+                ) : (
+                  <p className="ledger-text mt-3 text-[12.5px] leading-relaxed text-muted">
+                    {highlightTerms(result.text, terms)}
+                  </p>
+                )}
 
                 <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/[0.05] pt-3">
                   <p className="flex min-w-0 items-center gap-1.5 font-mono text-[9.5px] text-dim">
@@ -337,9 +338,7 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
                       {isOpen && (
                         <tr className="border-b border-white/[0.05] bg-black/20">
                           <td colSpan={6} className="px-4 py-4">
-                            <p className="whitespace-pre-wrap text-[12.5px] leading-relaxed text-muted">
-                              {highlightTerms(result.text, terms)}
-                            </p>
+                            <Markdown text={result.text} compact />
                             <button
                               type="button"
                               onClick={(event) => {

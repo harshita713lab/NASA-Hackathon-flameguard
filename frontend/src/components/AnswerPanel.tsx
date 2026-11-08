@@ -3,7 +3,7 @@ import { Check, Copy, Layers, Sparkles, Timer } from 'lucide-react'
 import type { SearchRun } from '../types'
 import { formatMs } from '../lib/format'
 import { extractParameters } from '../lib/highlight'
-import { RichText } from '../lib/richText'
+import { Markdown } from './Markdown'
 
 export function AnswerPanel({ run }: { run: SearchRun }) {
   const [copied, setCopied] = useState(false)
@@ -27,7 +27,7 @@ export function AnswerPanel({ run }: { run: SearchRun }) {
   }
 
   return (
-    <article className="panel panel-glow flex h-full flex-col overflow-hidden">
+    <article className="panel panel-glow flex h-full min-w-0 flex-col overflow-hidden">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] bg-gradient-to-r from-ember/[0.06] via-transparent to-transparent px-4 py-3.5 sm:px-6 sm:py-4">
         <div className="flex items-center gap-2.5 sm:gap-3">
           <div className="grid size-9 place-items-center rounded-xl border border-ember/25 bg-ember/10 shrink-0">
@@ -62,7 +62,7 @@ export function AnswerPanel({ run }: { run: SearchRun }) {
 
       <div className="flex-1 px-4 py-4 sm:px-6 sm:py-6">
         {answer ? (
-          <RichText text={answer} />
+          <Markdown text={answer} />
         ) : (
           <p className="text-sm leading-relaxed text-muted">
             The model returned an empty synthesis for this query. Retry with a more specific question about

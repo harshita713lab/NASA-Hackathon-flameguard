@@ -7,6 +7,7 @@ const backend = process.env.BACKEND_URL ?? 'http://127.0.0.1:8000'
 const proxy = {
   '/api': { target: backend, changeOrigin: true },
   '/healthz': { target: backend, changeOrigin: true, rewrite: () => '/' },
+  '/static_images': { target: backend, changeOrigin: true },
 }
 
 export default defineConfig({
