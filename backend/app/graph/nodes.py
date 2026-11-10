@@ -47,7 +47,10 @@ def security_guardrail(state: GraphState) -> GraphState:
 def retrieve_pinecone(state: GraphState) -> GraphState:
     """Attempts to fetch from cloud Pinecone and formats image paths."""
     try:
-        search_kwargs = {"k": state["top_k"]}
+        # Use .get() with a default of 4
+        top_k = state.get("top_k", 4) 
+        search_kwargs = {"k": top_k}
+        
         if state.get("fuel_filter"):
             search_kwargs["filter"] = {"fuel_state": state["fuel_filter"]}
             
@@ -55,9 +58,6 @@ def retrieve_pinecone(state: GraphState) -> GraphState:
         
         chunks = []
         for doc in docs:
-            # Dynamically rewrite the internal database path to the public API URL
-            # From: ![](data/images/image.png)
-            # To:   ![](http://127.0.0.1:8000/static_images/image.png)
             formatted_text = doc.page_content.replace(
                 "data/images/", 
                 "http://127.0.0.1:8000/static_images/"
@@ -80,11 +80,13 @@ def retrieve_fallback(state: GraphState) -> GraphState:
     fallback_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "fallback.json"))
     chunks = []
     
+    # Use .get() with a default of 4 to prevent KeyErrors
+    top_k = state.get("top_k", 4)
+    
     if os.path.exists(fallback_path):
         with open(fallback_path, "r") as f:
             backup_data = json.load(f)
-            # Basic keyword match for the offline backup
-            chunks = [item for item in backup_data if item["fuel_state"] == state.get("fuel_filter", item["fuel_state"])][:state["top_k"]]
+            chunks = [item for item in backup_data if item["fuel_state"] == state.get("fuel_filter", item["fuel_state"])][:top_k]
             
     return {"retrieved_chunks": chunks, "active_source": "offline_fallback"}
 

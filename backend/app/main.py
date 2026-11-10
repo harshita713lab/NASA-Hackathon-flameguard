@@ -147,7 +147,7 @@ if ChatGoogleGenerativeAI is not None and os.getenv("GEMINI_API_KEY"):
     except Exception as exc:  # optional provider must never block startup
         logger.warning("Gemini fallback unavailable: %s", exc)
 
-llm = primary_llm.with_fallback([fallback_llm]) if fallback_llm is not None else primary_llm
+llm = primary_llm.with_fallbacks([fallback_llm]) if fallback_llm is not None else primary_llm
 
 
 # 5. The Super Intelligence Prompt Template
@@ -202,10 +202,9 @@ class SearchResponse(BaseModel):
 
 # --- API Endpoints ---
 @app.post("/api/search", response_model=SearchResponse)
-@limiter.limit("5/minute") # 6. Apply Rate Limit: 5 requests per minute per IP
+@limiter.limit("5/minute") # Apply Rate Limit: 5 requests per minute per IP
 async def search_combustion_data(request: Request, search_query: SearchRequest):
     try:
-
         fuel_filter = normalize_fuel(search_query.fuel_filter)
         mission = normalize_mission(search_query.mission)
         pillar = normalize_pillar(search_query.pillar)
@@ -258,7 +257,7 @@ async def search_combustion_data(request: Request, search_query: SearchRequest):
 
         formatted_results = merged_results[:top_k]
 
-        # C. Prepare context string for the LLM
+        # C. Prepare context string for LangGraph
         context_text = "\n\n".join(
             "Experiment: {experiment}\nPillar: {pillar}\nEnvironment: {environment}\n"
             "Source: {source}\nData: {text}".format(
@@ -278,17 +277,23 @@ async def search_combustion_data(request: Request, search_query: SearchRequest):
         if not context_text:
             context_text = "No curated or vector passages matched this query."
 
-        # D. Generate the SI synthesized answer
-        chain = prompt_template | llm
-        llm_response = chain.invoke({
-            "context": context_text,
-            "query": search_query.query
+        # D. Invoke LangGraph for agentic reasoning and synthesis
+        from app.graph.workflow import flameguard_graph
+        
+        # Pass the retrieved context and query into your LangGraph state
+        graph_result = flameguard_graph.invoke({
+            "query": search_query.query,
+            "retrieved_chunks": formatted_results,
+            "context_text": context_text
         })
-        if llm_response:
-            print("LLM response:", llm_response.content)
+        
+        synthesized_text = graph_result.get("synthesized_answer", "")
+        if synthesized_text:
+            print("LangGraph SI response generated successfully.")
 
+        # E. Format the response and inject dynamic public image URLs
         return SearchResponse(
-            synthesized_answer=llm_response.content.replace(
+            synthesized_answer=synthesized_text.replace(
                 "data/images/", f"{PUBLIC_BASE_URL}/static_images/"
             ),
             raw_results=[
@@ -308,15 +313,13 @@ async def search_combustion_data(request: Request, search_query: SearchRequest):
         )
 
     except Exception as e:
-        # Terminal/Logs mein exact error trace print hoga (Debugging ke liye)
         logger.error(f"Search endpoint error: {str(e)}", exc_info=True)
-        
-        # User/Client ko sirf ek clean generic message jayega (Security ke liye)
         raise HTTPException(
             status_code=500, 
             detail="An error occurred while processing your scientific query. Please try again later."
         )
 
+        
 @app.get("/")
 def health_check():
     return {"status": "FlameGuard SI API is running"}
