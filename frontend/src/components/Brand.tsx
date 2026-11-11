@@ -83,10 +83,12 @@ const BADGE_SIZES = {
 export function NasaBadge({
   className,
   label = 'NASA Space Apps',
+  labelClassName,
   size = 'md',
 }: {
   className?: string
   label?: string
+  labelClassName?: string
   size?: keyof typeof BADGE_SIZES
 }) {
   const dims = BADGE_SIZES[size]
@@ -118,6 +120,7 @@ export function NasaBadge({
         className={cn(
           'whitespace-nowrap font-mono uppercase leading-tight tracking-[0.16em] text-dim',
           dims.label,
+          labelClassName,
         )}
       >
         {label}

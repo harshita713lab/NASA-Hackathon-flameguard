@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import type { BackendState, SearchRun } from '../types'
 import { cn, formatClock, shortenQuery } from '../lib/format'
-import { Logo, NasaBadge } from './Brand'
+import { Logo } from './Brand'
 import { StatusPill } from './StatusPill'
 
 interface SidebarProps {

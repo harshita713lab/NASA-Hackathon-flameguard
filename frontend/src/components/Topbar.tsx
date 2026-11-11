@@ -34,9 +34,11 @@ export function Topbar({ onMenu, backend, onRefreshBackend, docsUrl }: TopbarPro
             <Menu className="size-4" />
           </button>
 
+          <NasaBadge label="NASA" labelClassName="hidden sm:inline" />
+
           <div className="flex min-w-0 items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] sm:tracking-[0.16em]">
-            <span className="hidden text-dim sm:inline">Mission control</span>
-            <span className="hidden text-white/15 sm:inline">/</span>
+            <span className="hidden text-dim md:inline">Mission control</span>
+            <span className="hidden text-white/15 md:inline">/</span>
             <span className="truncate text-ink/80">SI console</span>
           </div>
         </div>
@@ -47,7 +49,6 @@ export function Topbar({ onMenu, backend, onRefreshBackend, docsUrl }: TopbarPro
             {time}
             <span className="text-dim">UTC</span>
           </div>
-          <NasaBadge label="NASA" />
           <StatusPill state={backend} onRefresh={onRefreshBackend} />
           <a
             href={docsUrl}
