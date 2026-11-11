@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import type { BackendState, SearchRun } from '../types'
 import { cn, formatClock, shortenQuery } from '../lib/format'
-import { Logo } from './Brand'
+import { Logo, NasaBadge } from './Brand'
 import { StatusPill } from './StatusPill'
 
 interface SidebarProps {
@@ -193,10 +193,9 @@ export function Sidebar({
             Re-check connection
           </button>
         </div>
-        <p className="mt-3 px-1 text-center font-mono text-[8.5px] uppercase leading-relaxed tracking-[0.12em] text-dim/70">
-          NASA Space Apps Challenge
-          <br />
-          PSI microgravity fire safety
+        <NasaBadge label="NASA Space Apps" className="mt-3 w-full justify-center" />
+        <p className="mt-2 px-1 text-center font-mono text-[8.5px] uppercase leading-relaxed tracking-[0.12em] text-dim/70">
+          Space Apps Challenge · PSI microgravity fire safety
         </p>
       </div>
     </aside>

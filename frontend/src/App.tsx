@@ -4,6 +4,7 @@ import { AnswerPanel } from './components/AnswerPanel'
 import { EvidenceLedger } from './components/EvidenceLedger'
 import { QueryConsole } from './components/QueryConsole'
 import { RiskSimulator } from './components/RiskSimulator'
+import { ParticleField } from './components/ParticleField'
 import { Sidebar } from './components/Sidebar'
 import { ErrorState, IdleState, LoadingState } from './components/States'
 import { TelemetryPanel } from './components/TelemetryPanel'
@@ -170,6 +171,7 @@ export default function App() {
   return (
     <div className="relative min-h-screen">
       <Backdrop />
+      <ParticleField />
 
       <Sidebar
         open={sidebarOpen}
@@ -196,7 +198,7 @@ export default function App() {
         aria-hidden="true"
       />
 
-      <div className="lg:pl-[278px]">
+      <div className="relative z-10 lg:pl-[278px]">
         <Topbar
           onMenu={() => setSidebarOpen(true)}
           backend={backend}

@@ -43,7 +43,7 @@ export function IdleState({ onUseExample }: { onUseExample: (query: string) => v
               key={example}
               type="button"
               onClick={() => onUseExample(example)}
-              className="group flex flex-col rounded-xl border border-white/[0.06] bg-white/[0.015] p-3 sm:p-3.5 text-left transition-all hover:border-ember/25 hover:bg-ember/[0.04] touch-manipulation"
+              className="tile-interactive group flex flex-col rounded-xl border border-white/[0.06] bg-white/[0.015] p-3 sm:p-3.5 text-left transition-all hover:border-ember/25 hover:bg-ember/[0.04] touch-manipulation"
             >
               <span className="font-mono text-[9px] text-dim transition-colors group-hover:text-ember-soft">
                 0{index + 1}

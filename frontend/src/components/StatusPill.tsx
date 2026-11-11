@@ -5,7 +5,7 @@ const STYLES: Record<BackendState, { label: string; dot: string; box: string }> 
   online: {
     label: 'API online',
     dot: 'bg-telemetry shadow-[0_0_10px_rgba(79,214,200,0.8)]',
-    box: 'border-telemetry/25 bg-telemetry/[0.07] text-telemetry',
+    box: 'border-telemetry/25 bg-telemetry/[0.07] text-telemetry shadow-[0_0_20px_-8px_rgba(79,214,200,0.75)]',
   },
   offline: {
     label: 'API offline',
@@ -41,7 +41,12 @@ export function StatusPill({
         className,
       )}
     >
-      <span className={cn('size-1.5 rounded-full', style.dot)} />
+      <span className="relative flex size-1.5 shrink-0 items-center justify-center">
+        {state === 'online' && (
+          <span className="absolute inset-0 rounded-full bg-telemetry/60 animate-pulse-soft" aria-hidden="true" />
+        )}
+        <span className={cn('relative size-1.5 rounded-full', style.dot)} />
+      </span>
       {style.label}
     </button>
   )

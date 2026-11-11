@@ -118,7 +118,7 @@ export function RiskSimulator() {
                     }}
                     aria-pressed={active}
                     className={cn(
-                      'flex flex-1 basis-[calc(50%-0.375rem)] items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-left transition-colors sm:basis-auto touch-manipulation',
+                      'tile-interactive flex flex-1 basis-[calc(50%-0.375rem)] items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-left sm:basis-auto touch-manipulation',
                       active
                         ? 'border-ember/30 bg-ember/[0.09] text-ember-soft'
                         : 'border-white/[0.07] bg-white/[0.02] text-muted hover:border-white/[0.14] hover:text-ink',

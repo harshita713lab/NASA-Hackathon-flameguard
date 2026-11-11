@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BookOpen, Menu, Radio } from 'lucide-react'
 import type { BackendState } from '../types'
+import { NasaBadge } from './Brand'
 import { StatusPill } from './StatusPill'
 
 interface TopbarProps {
@@ -46,6 +47,7 @@ export function Topbar({ onMenu, backend, onRefreshBackend, docsUrl }: TopbarPro
             {time}
             <span className="text-dim">UTC</span>
           </div>
+          <NasaBadge label="NASA" />
           <StatusPill state={backend} onRefresh={onRefreshBackend} />
           <a
             href={docsUrl}

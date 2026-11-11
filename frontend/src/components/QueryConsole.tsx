@@ -67,7 +67,11 @@ export function QueryConsole({
   return (
     <section id="console" className="scroll-mt-24">
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 lg:gap-8">
-        <div className="max-w-2xl animate-rise">
+        <div className="relative max-w-2xl animate-rise">
+          <div
+            className="hero-halo pointer-events-none absolute -left-24 -top-28 -z-10 h-[360px] w-[min(600px,130%)] rounded-full"
+            aria-hidden="true"
+          />
           <div className="flex items-center gap-2.5">
             <span className="h-px w-7 bg-gradient-to-r from-ember to-transparent" />
             <p className="mono-label text-ember-soft/80">Mission control · PSI corpus</p>
@@ -179,7 +183,7 @@ export function QueryConsole({
                   onClick={() => onMissionChange(option.id)}
                   aria-pressed={mission === option.id}
                   className={cn(
-                    'flex min-w-0 flex-1 basis-[calc(50%-0.375rem)] items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-left transition-colors sm:basis-auto touch-manipulation',
+                    'tile-interactive flex min-w-0 flex-1 basis-[calc(50%-0.375rem)] items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-left sm:basis-auto touch-manipulation',
                     mission === option.id
                       ? 'border-ember/30 bg-ember/[0.09] text-ember-soft'
                       : 'border-white/[0.07] bg-white/[0.02] text-muted hover:border-white/[0.14] hover:text-ink',
@@ -207,7 +211,7 @@ export function QueryConsole({
                   onClick={() => onPillarChange(option.id)}
                   aria-pressed={pillar === option.id}
                   className={cn(
-                    'flex min-w-0 flex-1 basis-[calc(50%-0.375rem)] flex-col rounded-lg border px-2.5 py-1.5 text-left transition-colors sm:basis-auto touch-manipulation',
+                    'tile-interactive flex min-w-0 flex-1 basis-[calc(50%-0.375rem)] flex-col rounded-lg border px-2.5 py-1.5 text-left sm:basis-auto touch-manipulation',
                     pillar === option.id
                       ? PILLAR_ACTIVE[option.id]
                       : 'border-white/[0.07] bg-white/[0.02] text-muted hover:border-white/[0.14] hover:text-ink',
@@ -233,7 +237,7 @@ export function QueryConsole({
                     onClick={() => onFuelChange(option.id)}
                     aria-pressed={fuel === option.id}
                     className={cn(
-                      'flex flex-1 sm:flex-initial justify-center items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[11px] sm:text-[11.5px] font-medium transition-all sm:px-3 touch-manipulation',
+                      'tile-interactive flex flex-1 sm:flex-initial justify-center items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[11px] sm:text-[11.5px] font-medium transition-all sm:px-3 touch-manipulation',
                       fuel === option.id
                         ? 'bg-ember/[0.13] text-ember-soft ring-1 ring-ember/25 ring-inset'
                         : 'text-dim hover:text-ink',
