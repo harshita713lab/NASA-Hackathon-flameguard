@@ -74,31 +74,55 @@ export function Logo({ compact = false, className }: { compact?: boolean; classN
   )
 }
 
-export function NasaBadge({ className, label = 'NASA Space Apps' }: { className?: string; label?: string }) {
+const BADGE_SIZES = {
+  sm: { frame: 'size-11', label: 'text-[8.5px]' },
+  md: { frame: 'size-12', label: 'text-[9px]' },
+  lg: { frame: 'size-16', label: 'text-[10px]' },
+} as const
+
+export function NasaBadge({
+  className,
+  label = 'NASA Space Apps',
+  size = 'md',
+}: {
+  className?: string
+  label?: string
+  size?: keyof typeof BADGE_SIZES
+}) {
+  const dims = BADGE_SIZES[size]
+
   return (
-    <a
-      href="https://www.nasa.gov"
-      target="_blank"
-      rel="noreferrer"
+    <div
       title="NASA — Space Apps Challenge"
       className={cn(
-        'group inline-flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.02] px-2.5 py-1.5 transition-colors hover:border-white/15 hover:bg-white/[0.04]',
+        'group inline-flex select-none items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.03] py-1 pl-1.5 pr-3 transition duration-300 hover:border-telemetry/40 hover:bg-white/[0.06]',
         className,
       )}
     >
-      <img
-        src="/nasa-logo.png"
-        alt=""
-        width={24}
-        height={24}
-        loading="lazy"
-        decoding="async"
-        className="size-5 shrink-0 object-contain opacity-70 grayscale brightness-125 transition duration-300 group-hover:opacity-100 group-hover:grayscale-0 group-hover:brightness-100"
-      />
-      <span className="whitespace-nowrap font-mono text-[8.5px] uppercase leading-tight tracking-[0.14em] text-dim transition-colors group-hover:text-muted">
+      <span
+        className={cn(
+          'relative grid shrink-0 place-items-center overflow-hidden rounded-full bg-black/50 p-0.5 ring-1 ring-white/15',
+          dims.frame,
+        )}
+      >
+        <img
+          src="/NasaLogo.webp"
+          width={160}
+          height={160}
+          decoding="async"
+          draggable={false}
+          className="size-full rounded-full object-cover brightness-110 saturate-110 transition duration-300 group-hover:scale-[1.06]"
+        />
+      </span>
+      <span
+        className={cn(
+          'whitespace-nowrap font-mono uppercase leading-tight tracking-[0.16em] text-dim',
+          dims.label,
+        )}
+      >
         {label}
       </span>
-    </a>
+    </div>
   )
 }
 

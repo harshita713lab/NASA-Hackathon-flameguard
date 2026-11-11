@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { CheckCircle2, Flame, PencilLine } from 'lucide-react'
 import { AnswerPanel } from './components/AnswerPanel'
+import { NasaBadge } from './components/Brand'
 import { EvidenceLedger } from './components/EvidenceLedger'
 import { QueryConsole } from './components/QueryConsole'
 import { RiskSimulator } from './components/RiskSimulator'
@@ -260,11 +261,14 @@ export default function App() {
           </div>
 
           <footer className="mt-10 sm:mt-14 border-t border-white/[0.06] pt-5 sm:pt-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-dim">
-                <Flame className="size-3 text-ember/70 shrink-0" />
-                FlameGuard SI · NASA Space Apps Challenge
-              </p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-3">
+                <NasaBadge size="sm" label="NASA Space Apps" />
+                <p className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-dim">
+                  <Flame className="size-3 text-ember/70 shrink-0" />
+                  FlameGuard SI · Microgravity fire safety
+                </p>
+              </div>
               <p className="text-[10px] leading-relaxed text-dim">
                 AI-generated synthesis — verify claims against the cited PSI passages.
               </p>

@@ -193,7 +193,6 @@ export function Sidebar({
             Re-check connection
           </button>
         </div>
-        <NasaBadge label="NASA Space Apps" className="mt-3 w-full justify-center" />
         <p className="mt-2 px-1 text-center font-mono text-[8.5px] uppercase leading-relaxed tracking-[0.12em] text-dim/70">
           Space Apps Challenge · PSI microgravity fire safety
         </p>
