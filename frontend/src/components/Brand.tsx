@@ -106,13 +106,13 @@ export function NasaBadge({
         )}
       >
         <img
-          src="/NasaLogo.webp"
-          width={160}
-          height={160}
-          decoding="async"
-          draggable={false}
-          className="size-full rounded-full object-cover brightness-110 saturate-110 transition duration-300 group-hover:scale-[1.06]"
-        />
+          src="/NasaLogo.webp"
+          width={160}
+          height={160}  
+          decoding="async"
+          draggable={false}
+          className="size-full rounded-full object-cover brightness-110 saturate-110 transition duration-300 group-hover:scale-[1.06]"
+        />
       </span>
       <span
         className={cn(
