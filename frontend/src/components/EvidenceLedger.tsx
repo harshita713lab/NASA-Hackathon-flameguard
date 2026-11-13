@@ -96,6 +96,7 @@ export function EvidenceLedger({ run }: { run: SearchRun }) {
   const exportJson = () => {
     const payload = {
       query: run.query,
+      section: run.section ?? null,
       fuel_filter: run.fuelFilter === 'All' ? null : run.fuelFilter,
       mission: run.mission && run.mission !== 'All' ? run.mission : null,
       pillar: run.pillar && run.pillar !== 'All' ? run.pillar : null,

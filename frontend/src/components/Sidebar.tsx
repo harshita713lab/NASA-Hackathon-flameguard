@@ -1,4 +1,5 @@
 import {
+  Archive,
   BookOpen,
   Clock3,
   FileSearch,
@@ -24,7 +25,10 @@ interface SidebarProps {
   backendUrl: string
   docsUrl: string
   onRefreshBackend: () => void
-  onJump: (target: 'console' | 'evidence') => void
+  onJump: (target: 'evidence') => void
+  onOpenConsole: () => void
+  onOpenArchives: () => void
+  activeView: 'console' | 'archives'
   hasEvidence: boolean
 }
 
@@ -41,15 +45,35 @@ export function Sidebar({
   docsUrl,
   onRefreshBackend,
   onJump,
+  onOpenConsole,
+  onOpenArchives,
+  activeView,
   hasEvidence,
 }: SidebarProps) {
   const navItems = [
-    { label: 'Query console', icon: LayoutDashboard, onClick: () => onJump('console') },
+    {
+      label: 'Query console',
+      icon: LayoutDashboard,
+      onClick: onOpenConsole,
+      active: activeView === 'console',
+      disabled: false,
+      isNew: false,
+    },
+    {
+      label: 'Mission archives',
+      icon: Archive,
+      onClick: onOpenArchives,
+      active: activeView === 'archives',
+      disabled: false,
+      isNew: true,
+    },
     {
       label: 'Evidence ledger',
       icon: FileSearch,
       onClick: () => hasEvidence && onJump('evidence'),
+      active: false,
       disabled: !hasEvidence,
+      isNew: false,
     },
   ]
 
@@ -88,7 +112,7 @@ export function Sidebar({
               }}
               className={cn(
                 'group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] transition-colors',
-                item.label === 'Query console'
+                item.active
                   ? 'border border-white/[0.06] bg-white/[0.04] text-white'
                   : 'text-muted hover:bg-white/[0.03] hover:text-ink',
                 item.disabled && 'cursor-not-allowed opacity-35 hover:bg-transparent hover:text-muted',
@@ -96,6 +120,11 @@ export function Sidebar({
             >
               <item.icon className="size-4 text-dim group-hover:text-ember-soft" />
               {item.label}
+              {item.isNew && (
+                <span className="ml-auto rounded border border-telemetry/25 bg-telemetry/[0.08] px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-wider text-telemetry">
+                  New
+                </span>
+              )}
               {item.label === 'Evidence ledger' && hasEvidence && (
                 <span className="ml-auto size-1.5 rounded-full bg-ember/80" />
               )}
@@ -152,11 +181,16 @@ export function Sidebar({
                       : 'border-transparent hover:border-white/[0.07] hover:bg-white/[0.03]',
                   )}
                 >
+                  {run.section && (
+                    <span className="mb-1 inline-flex rounded border border-ember/20 bg-ember/[0.06] px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-wider text-ember-soft">
+                      [{run.section}]
+                    </span>
+                  )}
                   <p className="line-clamp-2 text-[12px] leading-snug text-ink/85">{shortenQuery(run.query, 64)}</p>
                   <p className="mt-1.5 flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-wider text-dim">
                     <span>{formatClock(run.createdAt)}</span>
                     <span className="text-white/15">/</span>
-                    <span>{run.fuelFilter}</span>
+                    <span>{run.section ?? run.fuelFilter}</span>
                     <span className="text-white/15">/</span>
                     <span>k={run.topK}</span>
                   </p>

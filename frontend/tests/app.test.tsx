@@ -6,13 +6,16 @@ const { runSearchMock, checkBackendMock } = vi.hoisted(() => ({
   checkBackendMock: vi.fn(),
 }))
 
-vi.mock('../src/lib/api', () => ({
-  runSearch: (...args: unknown[]) => runSearchMock(...args),
-  checkBackend: (...args: unknown[]) => checkBackendMock(...args),
-  backendLabel: 'http://127.0.0.1:8000',
-  docsUrl: 'http://127.0.0.1:8000/docs',
-  ApiError: class ApiError extends Error {},
-}))
+vi.mock('../src/lib/api', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/lib/api')>()
+  return {
+    ...actual,
+    runSearch: (...args: unknown[]) => runSearchMock(...args),
+    checkBackend: (...args: unknown[]) => checkBackendMock(...args),
+    backendLabel: 'http://127.0.0.1:8000',
+    docsUrl: 'http://127.0.0.1:8000/docs',
+  }
+})
 
 import App from '../src/App'
 import type { SearchResponse } from '../src/types'
@@ -48,7 +51,7 @@ describe('App', () => {
   it('renders the console, simulator and idle guidance', async () => {
     render(<App />)
 
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toContain('Ask the archive.')
+    expect(consoleSection().getByRole('heading', { level: 1 }).textContent).toContain('Ask the archive.')
     expect(screen.getByRole('heading', { name: 'Flammability simulator' })).toBeInTheDocument()
     expect(await screen.findByText('Four ways into the corpus')).toBeInTheDocument()
   })

@@ -3,6 +3,7 @@ import { CheckCircle2, Flame, PencilLine } from 'lucide-react'
 import { AnswerPanel } from './components/AnswerPanel'
 import { NasaBadge } from './components/Brand'
 import { EvidenceLedger } from './components/EvidenceLedger'
+import { MissionArchives } from './components/MissionArchives'
 import { QueryConsole } from './components/QueryConsole'
 import { RiskSimulator } from './components/RiskSimulator'
 import { ParticleField } from './components/ParticleField'
@@ -75,6 +76,8 @@ export default function App() {
   const [run, setRun] = useState<SearchRun | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [view, setView] = useState<'console' | 'archives'>('console')
+  const [archiveSeed, setArchiveSeed] = useState<SearchRun | null>(null)
 
   const { history, add, remove, clear } = useSearchHistory()
   const { state: backend, refresh: refreshBackend } = useBackendStatus()
@@ -108,6 +111,26 @@ export default function App() {
   const jumpTo = (target: 'console' | 'evidence' | 'analysis-top') => {
     const id = target === 'analysis-top' ? 'analysis' : target
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const openConsole = () => {
+    setView('console')
+    window.setTimeout(() => jumpTo('console'), 40)
+  }
+
+  const openArchives = () => {
+    setView('archives')
+    window.setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 40)
+  }
+
+  const openEvidence = () => {
+    if (!run) return
+    if (view !== 'console') {
+      setView('console')
+      window.setTimeout(() => jumpTo('evidence'), 60)
+      return
+    }
+    jumpTo('evidence')
   }
 
   const execute = useCallback(async () => {
@@ -152,6 +175,15 @@ export default function App() {
     abortRef.current?.abort()
     setLoading(false)
     setError(null)
+
+    if (record.section) {
+      setArchiveSeed(record)
+      setView('archives')
+      window.setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 80)
+      return
+    }
+
+    setView('console')
     setQuery(record.query)
     setFuel(record.fuelFilter)
     setMission(record.mission ?? 'All')
@@ -186,7 +218,10 @@ export default function App() {
         backendUrl={backendLabel}
         docsUrl={docsUrl}
         onRefreshBackend={refreshBackend}
-        onJump={jumpTo}
+        onJump={openEvidence}
+        onOpenConsole={openConsole}
+        onOpenArchives={openArchives}
+        activeView={view}
         hasEvidence={Boolean(run?.response.raw_results.length)}
       />
 
@@ -208,56 +243,67 @@ export default function App() {
         />
 
         <main className="mx-auto w-full max-w-[1380px] 2xl:max-w-[1560px] px-3.5 pb-12 pt-5 sm:px-6 sm:pb-14 sm:pt-7 lg:px-8 lg:pt-9">
-          <QueryConsole
-            query={query}
-            onQueryChange={setQuery}
-            fuel={fuel}
-            onFuelChange={setFuel}
-            mission={mission}
-            onMissionChange={setMission}
-            pillar={pillar}
-            onPillarChange={setPillar}
-            topK={topK}
-            onTopKChange={setTopK}
-            onSubmit={execute}
-            loading={loading}
-          />
+          <div className={cn(view === 'console' ? 'block' : 'hidden')}>
+            <QueryConsole
+              query={query}
+              onQueryChange={setQuery}
+              fuel={fuel}
+              onFuelChange={setFuel}
+              mission={mission}
+              onMissionChange={setMission}
+              pillar={pillar}
+              onPillarChange={setPillar}
+              topK={topK}
+              onTopKChange={setTopK}
+              onSubmit={execute}
+              loading={loading}
+            />
 
-          <div className="mt-6 sm:mt-8 animate-rise">
-            <RiskSimulator />
+            <div className="mt-6 sm:mt-8 animate-rise">
+              <RiskSimulator />
+            </div>
+
+            <div aria-live="polite">
+              {error ? (
+                <ErrorState
+                  message={error}
+                  onRetry={execute}
+                  backend={backend}
+                  backendUrl={backendLabel}
+                  docsUrl={docsUrl}
+                />
+              ) : loading ? (
+                <LoadingState query={query.trim()} />
+              ) : run ? (
+                <div id="analysis" className="mt-7 sm:mt-9 scroll-mt-24 space-y-4 sm:space-y-5">
+                  <ResultsHeader run={run} onEdit={() => jumpTo('console')} />
+
+                  <div className="grid gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+                    <div className="animate-rise min-w-0">
+                      <AnswerPanel run={run} />
+                    </div>
+                    <div className="animate-rise min-w-0 [animation-delay:90ms]">
+                      <TelemetryPanel run={run} />
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <EvidenceLedger key={run.id} run={run} />
+                  </div>
+                </div>
+              ) : (
+                <IdleState onUseExample={useExample} />
+              )}
+            </div>
           </div>
 
-          <div aria-live="polite">
-            {error ? (
-              <ErrorState
-                message={error}
-                onRetry={execute}
-                backend={backend}
-                backendUrl={backendLabel}
-                docsUrl={docsUrl}
-              />
-            ) : loading ? (
-              <LoadingState query={query.trim()} />
-            ) : run ? (
-              <div id="analysis" className="mt-7 sm:mt-9 scroll-mt-24 space-y-4 sm:space-y-5">
-                <ResultsHeader run={run} onEdit={() => jumpTo('console')} />
-
-                <div className="grid gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
-                  <div className="animate-rise min-w-0">
-                    <AnswerPanel run={run} />
-                  </div>
-                  <div className="animate-rise min-w-0 [animation-delay:90ms]">
-                    <TelemetryPanel run={run} />
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <EvidenceLedger key={run.id} run={run} />
-                </div>
-              </div>
-            ) : (
-              <IdleState onUseExample={useExample} />
-            )}
+          <div className={cn(view === 'archives' ? 'block' : 'hidden')}>
+            <MissionArchives
+              key={archiveSeed?.id ?? 'archives'}
+              seed={archiveSeed}
+              onRunComplete={add}
+              onOpenConsole={openConsole}
+            />
           </div>
 
           <footer className="mt-10 sm:mt-14 border-t border-white/[0.06] pt-5 sm:pt-6">

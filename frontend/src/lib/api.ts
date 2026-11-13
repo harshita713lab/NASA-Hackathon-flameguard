@@ -4,6 +4,7 @@ import type {
   PillarFilter,
   SearchPayload,
   SearchResponse,
+  SectionApiId,
 } from '../types'
 
 const rawBase = (import.meta.env.VITE_API_URL ?? '').trim()
@@ -37,19 +38,15 @@ function withTimeout(timeout: number, external?: AbortSignal) {
   return { signal: controller.signal, clear }
 }
 
-export async function runSearch(
-  query: string,
-  fuelFilter: FuelFilter,
-  mission: MissionFilter,
-  pillar: PillarFilter,
-  topK: number,
-  external?: AbortSignal,
-): Promise<SearchResponse> {
-  const payload: SearchPayload = { query, top_k: topK }
-  if (fuelFilter !== 'All') payload.fuel_filter = fuelFilter
-  if (mission !== 'All') payload.mission = mission
-  if (pillar !== 'All') payload.pillar = pillar
+export const SECTION_QUERY_MIN = 5
+export const SECTION_QUERY_MAX = 500
 
+/** Mirrors the backend `_sanitize_query` rule: collapse whitespace before measuring. */
+export function normalizeQuery(value: string): string {
+  return value.trim().replace(/\s+/g, ' ')
+}
+
+async function postSearch(payload: SearchPayload, external?: AbortSignal): Promise<SearchResponse> {
   const { signal, clear } = withTimeout(SEARCH_TIMEOUT_MS, external)
 
   try {
@@ -93,6 +90,40 @@ export async function runSearch(
   } finally {
     clear()
   }
+}
+
+export async function runSearch(
+  query: string,
+  fuelFilter: FuelFilter,
+  mission: MissionFilter,
+  pillar: PillarFilter,
+  topK: number,
+  external?: AbortSignal,
+): Promise<SearchResponse> {
+  const payload: SearchPayload = { query, top_k: topK }
+  if (fuelFilter !== 'All') payload.fuel_filter = fuelFilter
+  if (mission !== 'All') payload.mission = mission
+  if (pillar !== 'All') payload.pillar = pillar
+  return postSearch(payload, external)
+}
+
+/** Section-scoped RAG: exact API section literal, global filters explicitly null. */
+export async function runSectionSearch(
+  section: SectionApiId,
+  query: string,
+  topK: number,
+  external?: AbortSignal,
+): Promise<SearchResponse> {
+  const payload: SearchPayload = {
+    query: normalizeQuery(query),
+    section,
+    top_k: topK,
+    environment: null,
+    fuel_filter: null,
+    mission: null,
+    pillar: null,
+  }
+  return postSearch(payload, external)
 }
 
 export async function checkBackend(external?: AbortSignal): Promise<boolean> {
