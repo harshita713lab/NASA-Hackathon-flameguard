@@ -43,7 +43,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(title="NASA Space Apps - FlameGuard SI API")
 
-# 2. Attach Limiter to the FastAPI app
+# 2. Attach Limiter to the FaNstAPI app
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -172,8 +172,14 @@ MissionFilter = Literal["ISS", "Lunar Base", "Spacesuit EVA", "All"]
 PillarFilter = Literal["Prevention", "Detection", "Suppression", "All"]
 
 
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional, List
+
 class SearchRequest(BaseModel):
     query: str = Field(..., min_length=5, max_length=500)
+    # NEW: Accept the section type from the frontend UI
+    environment: Optional[str] = Field(default=None, description="Filter by environment (e.g., 'ISS', 'Microgravity')")
+    section: Optional[str] = Field(default=None, description="Target specific historical events or tech (e.g., 'Apollo 1')")
     fuel_filter: Optional[FuelFilter] = None
     mission: Optional[MissionFilter] = None
     pillar: Optional[PillarFilter] = None
@@ -200,6 +206,7 @@ class SearchResponse(BaseModel):
     synthesized_answer: str
     raw_results: List[SearchResult]
 
+
 # --- API Endpoints ---
 @app.post("/api/search", response_model=SearchResponse)
 @limiter.limit("5/minute") # Apply Rate Limit: 5 requests per minute per IP
@@ -210,21 +217,42 @@ async def search_combustion_data(request: Request, search_query: SearchRequest):
         pillar = normalize_pillar(search_query.pillar)
         top_k = max(1, min(search_query.top_k or 4, 10))
 
-        # A. Curated NASA PSI records are retrieved first and act as the authoritative layer.
-        curated_hits = _curated_hits(search_query.query, fuel_filter, mission, pillar, top_k)
-        merged_results: List[SearchResult] = [_curated_result(doc) for doc in curated_hits]
-        seen = {_result_key(result.text) for result in merged_results}
+        merged_results: List[SearchResult] = []
+        seen = set()
 
-        # B. Pinecone fills the remaining slots; curated records keep working if it is unavailable.
+        # A. Curated NASA PSI records (ONLY run if no specific historical section is requested)
+        if not search_query.section:
+            curated_hits = _curated_hits(search_query.query, fuel_filter, mission, pillar, top_k)
+            merged_results = [_curated_result(doc) for doc in curated_hits]
+            seen = {_result_key(result.text) for result in merged_results}
+
+        # B. Pinecone fills the slots (or handles the entire query if a section is provided)
         if vectorstore is not None:
             try:
                 search_kwargs = {"k": top_k}
+                pinecone_filter = {}
+                
+                # Append filters dynamically based on frontend payload
                 if fuel_filter:
-                    search_kwargs["filter"] = {"fuel_state": fuel_filter}
+                    pinecone_filter["fuel_state"] = fuel_filter
+                
+                # STRICT SECTION FILTERING
+                if search_query.section:
+                    pinecone_filter["section"] = search_query.section
+                
+                if search_query.environment:
+                    # Pinecone checks if this string exists inside the metadata array
+                    pinecone_filter["environments"] = search_query.environment
+                
+                # Only pass the filter argument to Pinecone if it contains keys
+                if pinecone_filter:
+                    search_kwargs["filter"] = pinecone_filter
+
                 docs = vectorstore.similarity_search(search_query.query, **search_kwargs)
 
                 for doc in docs:
-                    if not _pinecone_doc_matches(doc, mission, pillar):
+                    # Skip mission/pillar matching for non-PSI sections (like Apollo 1)
+                    if not search_query.section and not _pinecone_doc_matches(doc, mission, pillar):
                         continue
 
                     environments = doc.metadata.get("environments") or []
@@ -250,10 +278,10 @@ async def search_combustion_data(request: Request, search_query: SearchRequest):
                         break
             except Exception as exc:
                 logger.warning(
-                    "Pinecone retrieval failed, serving curated NASA PSI records only: %s", exc
+                    "Pinecone retrieval failed: %s", exc
                 )
         else:
-            logger.warning("Vector store unavailable, serving curated NASA PSI records only.")
+            logger.warning("Vector store unavailable.")
 
         formatted_results = merged_results[:top_k]
 
@@ -280,11 +308,15 @@ async def search_combustion_data(request: Request, search_query: SearchRequest):
         # D. Invoke LangGraph for agentic reasoning and synthesis
         from app.graph.workflow import flameguard_graph
         
-        # Pass the retrieved context and query into your LangGraph state
+        # UPDATED: Pass all required variables to LangGraph state
         graph_result = flameguard_graph.invoke({
             "query": search_query.query,
+            "fuel_filter": fuel_filter,
+            "top_k": top_k,
             "retrieved_chunks": formatted_results,
-            "context_text": context_text
+            "context_text": context_text,
+            "environment_filter": search_query.environment,
+            "section": search_query.section
         })
         
         synthesized_text = graph_result.get("synthesized_answer", "")
@@ -319,7 +351,7 @@ async def search_combustion_data(request: Request, search_query: SearchRequest):
             detail="An error occurred while processing your scientific query. Please try again later."
         )
 
-        
+    
 @app.get("/")
 def health_check():
     return {"status": "FlameGuard SI API is running"}

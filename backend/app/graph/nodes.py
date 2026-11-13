@@ -95,9 +95,17 @@ import re # Add this import at the top of nodes.py
 def generate_synthesis(state: GraphState) -> GraphState:
     """Formats context, enforces NASA physics constraints, deduplicates visuals, and calls Groq Llama 3."""
     
+    # 1. Dynamically adjust the persona focus based on what the user filtered
+    focus_instruction = ""
+    if state.get("environment_filter"):
+        focus_instruction += f"\n- CRITICAL FOCUS: The user is specifically asking about the {state['environment_filter']} environment. Tailor your analysis heavily toward this setting."
+    if state.get("section"):
+        focus_instruction += f"\n- HISTORICAL CONTEXT: The user is investigating the '{state['section']}' section. Frame your response around this specific topic or incident."
+
     system_prompt = (
         "You are a NASA Super Intelligence (SI) aerospace engineer specializing in microgravity fire safety. "
-        "Use the provided scientific context from the Physical Science Informatics (PSI) database to answer the query. "
+        "Use the provided scientific context to answer the query. "
+        f"{focus_instruction}"
         "\n\nCRITICAL DOMAIN CONSTRAINTS:"
         "\n1. LUNAR BASE & SPACESUITS: When evaluating flammability, explicitly factor in that Spacesuits operate at 100% O2 (4.3 psi), and future Lunar Bases will operate at >30% O2 (10.2 psi). Compare this against Earth's 21% O2 baseline."
         "\n2. HARDWARE: Distinguish between MSG (Microgravity Science Glovebox) and CIR (Combustion Integrated Rack) experiments."
@@ -114,12 +122,15 @@ def generate_synthesis(state: GraphState) -> GraphState:
         ("human", "{query}")
     ])
     
-    # --- ARCHITECTURE UPDATE: Regex Deduplication (Keep your existing logic here) ---
+    # --- ARCHITECTURE UPDATE: Regex Deduplication ---
     seen_images = set()
     cleaned_chunks = []
     
-    for chunk in state["retrieved_chunks"]:
-        text = chunk.get("text", "")
+    for chunk in state.get("retrieved_chunks", []):
+        # Handle both Pydantic objects (from main.py) and dictionaries safely
+        text = chunk.text if hasattr(chunk, 'text') else chunk.get("text", "")
+        experiment = chunk.experiment if hasattr(chunk, 'experiment') else chunk.get("experiment", "Unknown")
+        
         img_tags = re.findall(r'!\[.*?\]\(.*?\)', text)
         
         for tag in img_tags:
@@ -128,7 +139,7 @@ def generate_synthesis(state: GraphState) -> GraphState:
             else:
                 seen_images.add(tag)
                 
-        cleaned_chunks.append(f"Experiment: {chunk.get('experiment')}\nData: {text.strip()}")
+        cleaned_chunks.append(f"Experiment: {experiment}\nData: {text.strip()}")
         
     context_text = "\n\n".join(cleaned_chunks)
     
