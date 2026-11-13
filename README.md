@@ -2,8 +2,8 @@
 
 # FlameGuard — NASA Space Apps Microgravity Fire Safety Super-Intelligence
 
-**A retrieval-augmented generation (RAG) console for NASA microgravity combustion science.**
-Ask a natural-language fire-safety question, get a grounded scientific synthesis, and verify every claim against the exact NASA PSI passages and extracted figures behind it.
+**A retrieval-augmented generation (RAG) console for NASA microgravity combustion science — with mission & event archives.**
+Ask a natural-language fire-safety question, get a grounded scientific synthesis, and verify every claim against the exact NASA PSI passages and extracted figures behind it. Explore four section-scoped dossiers on **ISS combustion science**, **Apollo 1**, **Apollo 13** and **Mir**, each with archival NASA imagery and a query box that retrieves only from that mission's corpus section.
 
 [![NASA Space Apps Challenge](https://img.shields.io/badge/NASA%20Space%20Apps-Challenge-0B3D91?style=for-the-badge)](https://www.spaceappschallenge.org/)
 [![Domain](https://img.shields.io/badge/Domain-Microgravity%20Fire%20Safety-E4572E?style=for-the-badge)](#why-flameguard)
@@ -13,7 +13,7 @@ Ask a natural-language fire-safety question, get a grounded scientific synthesis
 [![Vector DB](https://img.shields.io/badge/Vector%20DB-Pinecone-0B7285?style=for-the-badge)](https://www.pinecone.io/)
 [![LLM](https://img.shields.io/badge/LLM-Groq%20%C2%B7%20GPT--OSS--20B-FF6B35?style=for-the-badge)](https://groq.com/)
 
-[Features](#features) · [Architecture](#architecture) · [Quick start](#quick-start) · [API reference](#api-reference) · [Roadmap](#roadmap-and-production-readiness) · [FAQ](#frequently-asked-questions-faq)
+[Features](#features) · [Mission archives](#mission--event-archives) · [Architecture](#architecture) · [Quick start](#quick-start) · [API reference](#api-reference) · [Roadmap](#roadmap-and-production-readiness) · [FAQ](#frequently-asked-questions-faq)
 
 </div>
 
@@ -22,6 +22,11 @@ Ask a natural-language fire-safety question, get a grounded scientific synthesis
 ## Overview
 
 **FlameGuard** is a hackathon-ready **AI decision-support dashboard for spacecraft fire safety**, built for the **NASA Space Apps Challenge** and the **Physical Science Informatics (PSI)** microgravity combustion corpus. It combines a **FastAPI** retrieval service, **Pinecone vector search**, locally generated **HuggingFace MiniLM sentence embeddings**, and a **Groq-hosted large language model** with a mission-control **React + TypeScript** interface.
+
+Two workspaces share one retrieval API:
+
+- **Query console** — global search across the corpus with fuel, mission and safety-pillar filters.
+- **Mission & Event Archives** — four dossiers (**ISS Combustion Science**, **Apollo 1**, **Apollo 13**, **Mir**) with section-scoped retrieval, archival NASA figures and per-section answer caching.
 
 The project answers questions such as:
 
@@ -32,7 +37,7 @@ The project answers questions such as:
 
 Every answer ships with the **raw PSI evidence**, **experiment metadata**, **fuel-state tags**, **source citations**, **extracted NASA figures**, and **retrieval telemetry**, so engineers can audit the science instead of trusting a black box.
 
-> Keywords: NASA Space Apps, microgravity fire safety, spacecraft fire safety, combustion science, Physical Science Informatics (PSI), BASS-II, Saffire, FLEX, SAME, PMMA, flame spread rate, opposed-flow combustion, oxygen enrichment, lunar habitat, Artemis, spacesuit EVA, International Space Station, retrieval-augmented generation, RAG, vector database, Pinecone, semantic search, LangChain, FastAPI, React, TypeScript, Vite, Tailwind CSS, Groq, Llama 3, GPT-OSS, dashboard.
+> Keywords: NASA Space Apps, microgravity fire safety, spacecraft fire safety, combustion science, Physical Science Informatics (PSI), BASS-II, Saffire, FLEX, FLEX-2, ACME, SoFIE, SAME, PMMA, flame spread rate, opposed-flow combustion, cool flames, oxygen enrichment, lunar habitat, Artemis, spacesuit EVA, International Space Station, Apollo 1, Apollo 13, Mir space station, Kvant-1, Vika SFOG, NASA-STD-6001, section-scoped retrieval, metadata filtering, mission archives, archival imagery, retrieval-augmented generation, RAG, vector database, Pinecone, semantic search, LangChain, FastAPI, React, TypeScript, Vite, Tailwind CSS, Groq, Llama 3, GPT-OSS, dashboard, open science.
 
 ---
 
@@ -63,16 +68,67 @@ Reference environments referenced by the challenge:
 
 | Capability | What it does |
 | --- | --- |
-| **Natural-language query console** | Ask research questions in plain English with a `Ctrl/Cmd + Enter` shortcut, 600-character counter, and preset benchmark prompts. |
+| **Natural-language query console** | Ask research questions in plain English with a `Ctrl/Cmd + Enter` shortcut, 500-character counter, and preset benchmark prompts. |
 | **Grounded scientific synthesis** | A temperature `0.0` LLM answer constrained to retrieved PSI context; the prompt explicitly extracts oxygen %, pressure, and flame-spread speed. |
+| **Mission & Event Archives** | Four fixed dossiers — ISS Combustion Science, Apollo 1, Apollo 13 and Mir — with briefings, key telemetry, starter prompts and a dedicated query box. |
+| **Section-scoped RAG** | Archive queries send the exact `section` literal and explicitly `null` the global environment, mission, pillar and fuel filters, so retrieval cannot blend events. |
+| **Archival image galleries** | **24 verified NASA images** (six per dossier) with figure labels, captions, archival credits, lazy loading and a zoomable lightbox. |
+| **Per-section answer cache** | Each dossier keeps its own query, top-k, answer and evidence trail, so switching sections never loses work. |
+| **Safety transparency** | Optional `active_source` pill (**PINECONE** vs **FALLBACK**) and an `is_safe === false` guardrail alert when the API supplies them. |
 | **Evidence Ledger** | Every passage returned by retrieval, with **card view** (term highlighting), **table view**, client-side fuel filtering, and one-click **JSON export**. |
 | **GFM Markdown rendering** | GitHub-flavored Markdown via `react-markdown` + `remark-gfm`: tables, code blocks, blockquotes, links, and figures. |
 | **NASA figure pipeline** | Extracted PDF figures are served at `/static_images/*` and rendered with rounded borders, dark shadows, aspect-ratio preservation, and a graceful fallback for missing assets. |
 | **Retrieval telemetry** | Live passage count, unique experiments, fuel-state split, experiment mix, and end-to-end latency. |
-| **Run history** | The last **12** searches are stored in `localStorage` with restore and delete controls. |
+| **Run history** | The last **12** searches are stored in `localStorage` with restore and delete controls; archive runs carry a `[section]` tag. |
 | **Backend health polling** | Real-time `API ONLINE` / `API OFFLINE` status pill driven by a lightweight health check. |
-| **Responsive mission-control UI** | Dark space theme built with Tailwind CSS 4, audited from narrow mobile widths up to desktop and ultrawide layouts. |
+| **Responsive mission-control UI** | Dark space theme built with Tailwind CSS 4, audited from 394 px mobile widths up to desktop and ultrawide layouts. |
 | **Zero-CORS development** | Vite proxies `/api`, `/healthz`, and `/static_images` to FastAPI, so no CORS configuration is needed locally. |
+
+---
+
+## Mission & Event Archives
+
+The **Mission archives** workspace turns four NASA fire-safety milestones into self-contained dossiers. Each dossier combines a curated briefing, key parameters, archival figures and a **section-scoped query box** that posts to `/api/search` with `section` set to the exact API literal.
+
+| Display title | API `section` literal | Era | Core hardware / system | Retrieval focus |
+| --- | --- | --- | --- | --- |
+| **ISS Combustion Science** | `Combustion Science` | 2000s → present | CIR, MSG, Cygnus / Saffire | Cool flames, soot, LOI, wall confinement |
+| **Apollo 1** | `Apollo 1` | 27 Jan 1967 | AS-204 · Block I CM-012 · Pad 34-A | 16.7 psia pure O₂, hatch, NASA-STD-6001 |
+| **Apollo 13** | `Apollo 13` | April 1970 | SM Bay 4 · Cryogenic O₂ Tank No. 2 | 65 V thermostat failure, PTFE ignition |
+| **Mir Space Station** | `Mir` | 23–24 Feb 1997 | Kvant-1 · Vika (TGK) SFOG | Lithium perchlorate jet flame, egress |
+
+### Section-scoped request contract
+
+```json
+{
+  "query": "Why do cool flames occur in FLEX?",
+  "section": "Combustion Science",
+  "top_k": 4,
+  "environment": null,
+  "fuel_filter": null,
+  "mission": null,
+  "pillar": null
+}
+```
+
+- The four section strings are **exact-match** Pinecone metadata values; display titles are kept separate in `frontend/src/data/missionSections.ts`.
+- Global filters are sent as `null` so a previously selected ISS/Lunar Base filter cannot intersect with an Apollo or Mir query and return zero chunks.
+- Queries are normalised with `trim().replace(/\s+/g, ' ')` before the length check, matching the backend `_sanitize_query` rule. Submit stays disabled below **5 non-space characters** and above **500**, preventing HTTP 422 responses.
+- Switching dossiers preserves each section's query, `top_k`, answer and evidence trail; completed runs are also written to the shared **RECENT RUNS** history with a `[section]` tag.
+- `active_source` and `is_safe` are rendered when the API includes them; the current backend contract is unchanged, so the UI degrades gracefully when they are absent.
+
+### Archival imagery (24 verified NASA images)
+
+All assets are bundled locally under `frontend/public/sections/` so demos never depend on a live external image API. Every figure stores `src`, `figureLabel`, `caption`, `sourceDoc` and `credit`, and opens in an accessible lightbox (`Esc` / backdrop close, scroll lock).
+
+| Dossier | Figures |
+| --- | --- |
+| **ISS Combustion Science** | BASS-II flame regimes · blue-flame droplets · quiescent near-limit flames · CIR in-flight maintenance · ACME chamber insert · Saffire-IV plexiglass burn |
+| **Apollo 1** | AS-204 prime crew · prime & backup crews · 2015 Day of Remembrance · CM-012 interior after the fire · Spacecraft 012 hoisted at Pad 34 · crew at Launch Complex 34 |
+| **Apollo 13** | Prime crew · damaged Service Module Bay 4 · Mission Control · fused thermal switch · full-scale tank fire propagation test · Apollo 14 oxygen tank cutaway |
+| **Mir Space Station** | Mir from STS-63 (two views) · Jerry Linenger in a Sokol suit · Linenger EVA · Mir interior node · Mir photographed from STS-81 |
+
+> Credits follow the **NASA Media Usage Guidelines**. FlameGuard is an independent hackathon project and does not imply NASA endorsement.
 
 ---
 
@@ -85,6 +141,7 @@ flowchart LR
   subgraph FE["Frontend - React 19 + TypeScript + Vite 8"]
     direction TB
     QC["Query Console"]
+    MA["Mission & Event Archives<br/>4 section dossiers + 24 figures"]
     AP["Answer Panel<br/>GFM markdown + NASA figures"]
     EL["Evidence Ledger<br/>cards / table / JSON export"]
     TP["Telemetry Sidebar"]
@@ -109,6 +166,7 @@ flowchart LR
   end
 
   QC -->|JSON payload| PA --> EP
+  MA -->|section-scoped JSON| PA
   AP -->|figure URLs| PS --> ST
   EP --> EM --> PC
   PC -->|top-k PSI passages| EP
@@ -125,7 +183,7 @@ flowchart LR
 ```text
 Browser (React 19 + TypeScript)
         |
-        |  POST /api/search  { query, fuel_filter, mission, pillar, top_k }
+        |  POST /api/search  { query, section?, fuel_filter, mission, pillar, top_k }
         v
 Vite dev proxy  --------------->  FastAPI (Python 3.11)
                                      |
@@ -231,13 +289,19 @@ NASA-Hackathon-flameguard/
 │   ├── requirements-test.txt
 │   └── .env                        # PINECONE_API_KEY / GROQ_API_KEY (never commit)
 ├── frontend/
+│   ├── public/
+│   │   └── sections/               # 24 bundled archival figures (iss-combustion, apollo-1, apollo-13, mir)
 │   ├── src/
-│   │   ├── components/             # QueryConsole, AnswerPanel, EvidenceLedger, RiskSimulator, ...
+│   │   ├── components/             # QueryConsole, MissionArchives, ImageLightbox, AnswerPanel, EvidenceLedger, ...
+│   │   ├── data/
+│   │   │   └── missionSections.ts  # 4-section registry: briefings, metrics, images, starter prompts
+│   │   ├── types/
+│   │   │   └── search.ts           # section-scoped request contract
 │   │   ├── hooks/                  # useBackendStatus, useSearchHistory
-│   │   ├── lib/                    # api client, markdown helpers, formatting
-│   │   ├── App.tsx
+│   │   ├── lib/                    # api client (runSearch / runSectionSearch), markdown helpers, formatting
+│   │   ├── App.tsx                 # console/archive routing + shared run history
 │   │   └── index.css
-│   ├── tests/                      # Vitest + Testing Library suite
+│   ├── tests/                      # Vitest + Testing Library suite (62 tests)
 │   ├── vitest.config.ts
 │   ├── vite.config.ts              # /api, /healthz, /static_images proxy
 │   └── package.json

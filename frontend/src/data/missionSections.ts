@@ -72,6 +72,30 @@ export const MISSION_SECTIONS: MissionSection[] = [
         sourceDoc: 'BASS-II Summary Report',
         credit: 'Credit: NASA · BASS-II Summary Report',
       },
+      {
+        src: '/sections/iss-combustion/cir-ifm.jpg',
+        figureLabel: 'CIR · In-flight maintenance',
+        caption:
+          'NASA astronaut Joe Acaba services the Combustion Integrated Rack in the Destiny laboratory during Expedition 32.',
+        sourceDoc: 'NASA JSC photo ISS032-E-014574',
+        credit: 'Credit: NASA/JSC · ISS032-E-014574',
+      },
+      {
+        src: '/sections/iss-combustion/acme-chamber-insert.jpg',
+        figureLabel: 'ACME · Chamber insert',
+        caption:
+          'Glenn engineer Christopher Mroczka inspects the gas-jet burner inside the ACME chamber insert for the CIR.',
+        sourceDoc: 'NASA GRC photo GRC-2016-C-05051',
+        credit: 'Credit: NASA/GRC · GRC-2016-C-05051',
+      },
+      {
+        src: '/sections/iss-combustion/saffire-plexiglass-burn.jpg',
+        figureLabel: 'Saffire-IV · Plexiglass burn',
+        caption:
+          'A plexiglass sample burns inside Saffire-IV; the orange color comes from soot, while bright flame balls mark vapor burning off the surface.',
+        sourceDoc: 'NASA JSC image jsc2023e046631',
+        credit: 'Credit: NASA/JSC · Saffire-IV',
+      },
     ],
     starterPrompts: [
       'How do FLEX cool flames pose a re-ignition hazard after hot flame extinction?',
@@ -123,6 +147,30 @@ export const MISSION_SECTIONS: MissionSection[] = [
         sourceDoc: 'NASA KSC photo KSC-2015-1209',
         credit: 'Credit: NASA/KSC · KSC-2015-1209',
       },
+      {
+        src: '/sections/apollo-1/cm012-interior-after-fire.jpg',
+        figureLabel: 'S/C 012 · CM interior',
+        caption:
+          'Close-up of the Apollo 012 Command Module interior at Pad 34 showing the effects of the 27 January 1967 flash fire.',
+        sourceDoc: 'NASA JSC photo S67-21295',
+        credit: 'Credit: NASA/JSC · S67-21295',
+      },
+      {
+        src: '/sections/apollo-1/sc012-pad34-hoist.jpg',
+        figureLabel: 'S/C 012 · Pad 34 mate',
+        caption:
+          'Apollo Spacecraft 012 is hoisted to the top of the gantry at Pad 34 for mating with the uprated Saturn I during AS-204 preparations.',
+        sourceDoc: 'NASA JSC photo S67-17042',
+        credit: 'Credit: NASA/JSC · S67-17042',
+      },
+      {
+        src: '/sections/apollo-1/crew-pad34.jpg',
+        figureLabel: 'AS-204 · Launch Complex 34',
+        caption:
+          'Gus Grissom, Ed White and Roger Chaffee pose in front of Launch Complex 34, which housed their Saturn IB.',
+        sourceDoc: 'NASA KSC photo KSC-67PC-0016',
+        credit: 'Credit: NASA/KSC · KSC-67PC-0016',
+      },
     ],
     starterPrompts: [
       'What four root causes did the Apollo 204 Review Board identify in the CM-012 fire?',
@@ -173,6 +221,30 @@ export const MISSION_SECTIONS: MissionSection[] = [
         sourceDoc: 'NASA JSC photo S70-34904',
         credit: 'Credit: NASA/JSC · S70-34904',
       },
+      {
+        src: '/sections/apollo-13/fused-thermal-switch.jpg',
+        figureLabel: 'SM O₂ tank · Thermal switch',
+        caption:
+          'The fused thermal switch recovered from an Apollo Service Module oxygen tank after tests reproduced the Apollo 13 detanking failure.',
+        sourceDoc: 'NASA JSC photo S70-40850',
+        credit: 'Credit: NASA/JSC · S70-40850',
+      },
+      {
+        src: '/sections/apollo-13/tank-fire-propagation-test.jpg',
+        figureLabel: 'Post-flight · Tank fire test',
+        caption:
+          'Full-scale fire propagation test inside an Apollo Service Module oxygen tank; the conduit fails with an abrupt loss of oxygen pressure.',
+        sourceDoc: 'NASA JSC photo S70-41984',
+        credit: 'Credit: NASA/JSC · S70-41984',
+      },
+      {
+        src: '/sections/apollo-13/apollo14-tank-cutaway.jpg',
+        figureLabel: 'Apollo 14 · Tank redesign',
+        caption:
+          'Artist cutaway of the redesigned Apollo 14 oxygen tank: three tanks, fewer ignition sources and less combustible material.',
+        sourceDoc: 'NASA JSC image S71-16745',
+        credit: 'Credit: NASA/JSC · S71-16745',
+      },
     ],
     starterPrompts: [
       'Why did the 28V thermostatic switch fail during the 65V ground detanking on Apollo 13?',
@@ -222,6 +294,30 @@ export const MISSION_SECTIONS: MissionSection[] = [
           'Mir’s modular stack with solar arrays against black space, photographed during the STS-63 rendezvous.',
         sourceDoc: 'NASA JSC photo STS063-712-068',
         credit: 'Credit: NASA/JSC · STS063-712-068',
+      },
+      {
+        src: '/sections/mir/linenger-eva.jpg',
+        figureLabel: 'Mir-23 · Linenger EVA',
+        caption:
+          'Jerry Linenger works outside Mir during the 29 April 1997 spacewalk, two months after the Kvant-1 fire.',
+        sourceDoc: 'NASA JSC photo NM23-48-009',
+        credit: 'Credit: NASA/JSC · NM23-48-009',
+      },
+      {
+        src: '/sections/mir/mir-interior-node.jpg',
+        figureLabel: 'Mir · Interior node',
+        caption:
+          'The interior of a Mir node seen from a docked Soyuz hatchway during the STS-84 visit in May 1997.',
+        sourceDoc: 'NASA JSC photo STS084-305-018',
+        credit: 'Credit: NASA/JSC · STS084-305-018',
+      },
+      {
+        src: '/sections/mir/mir-sts81-stack.jpg',
+        figureLabel: 'Mir · STS-81 view',
+        caption:
+          'Mir photographed from STS-81 in January 1997, showing Kvant-1, the core module and the docked Progress supply vehicle.',
+        sourceDoc: 'NASA MSFC image 9702655',
+        credit: 'Credit: NASA/MSFC · 9702655',
       },
     ],
     starterPrompts: [

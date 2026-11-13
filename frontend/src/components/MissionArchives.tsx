@@ -351,12 +351,14 @@ export function MissionArchives({ onRunComplete, seed, onOpenConsole }: MissionA
 
           <div className="border-t border-white/[0.06] px-4 py-3.5 sm:px-5">
             <div className="flex items-center justify-between gap-3">
-              <p className="mono-label">Archival figures</p>
+              <p className="mono-label">
+                Archival figures · {section.images.length}
+              </p>
               <span className="font-mono text-[8px] uppercase tracking-wider text-dim/70">
                 Click to zoom
               </span>
             </div>
-            <div className="mt-2 grid grid-cols-3 gap-2">
+            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
               {section.images.map((image) => (
                 <button
                   key={image.src}
