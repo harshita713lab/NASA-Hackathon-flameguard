@@ -273,37 +273,37 @@ sequenceDiagram
 NASA-Hackathon-flameguard/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py                 # FastAPI app, curated-first RAG chain, static figure mount
-│   │   ├── curated.py              # Curated PSI loader, normalisation and hit scoring
+│   │   ├── main.py                
+│   │   ├── curated.py              
 │   │   └── scripts/
-│   │       ├── nasa_ingestion.py   # NASA OSDR metadata / dataset downloader
-│   │       ├── seed_curated_psi.py # Push validated PSI records into Pinecone
-│   │       └── setup_vector_db.py  # PDF -> chunks -> embeddings -> Pinecone
+│   │       ├── nasa_ingestion.py   
+│   │       ├── seed_curated_psi.py 
+│   │       └── setup_vector_db.py  
 │   ├── data/
-│   │   ├── curated/                # Validated NASA PSI JSON records
-│   │   ├── images/                 # Extracted figures served at /static_images
-│   │   └── raw/                    # Source NASA PDFs (Saffire, Mir, ...)
-│   ├── tests/                      # pytest suite (offline provider stubs)
+│   │   ├── curated/                
+│   │   ├── images/              
+│   │   └── raw/                  
+│   ├── tests/                   
 │   ├── pytest.ini
 │   ├── requirements.txt
 │   ├── requirements-test.txt
-│   └── .env                        # PINECONE_API_KEY / GROQ_API_KEY (never commit)
+│   └── .env                     
 ├── frontend/
 │   ├── public/
-│   │   └── sections/               # 24 bundled archival figures (iss-combustion, apollo-1, apollo-13, mir)
+│   │   └── sections/              
 │   ├── src/
-│   │   ├── components/             # QueryConsole, MissionArchives, ImageLightbox, AnswerPanel, EvidenceLedger, ...
+│   │   ├── components/             
 │   │   ├── data/
-│   │   │   └── missionSections.ts  # 4-section registry: briefings, metrics, images, starter prompts
+│   │   │   └── missionSections.ts  
 │   │   ├── types/
-│   │   │   └── search.ts           # section-scoped request contract
-│   │   ├── hooks/                  # useBackendStatus, useSearchHistory
-│   │   ├── lib/                    # api client (runSearch / runSectionSearch), markdown helpers, formatting
-│   │   ├── App.tsx                 # console/archive routing + shared run history
+│   │   │   └── search.ts        
+│   │   ├── hooks/                
+│   │   ├── lib/               
+│   │   ├── App.tsx                 
 │   │   └── index.css
-│   ├── tests/                      # Vitest + Testing Library suite (62 tests)
+│   ├── tests/                    
 │   ├── vitest.config.ts
-│   ├── vite.config.ts              # /api, /healthz, /static_images proxy
+│   ├── vite.config.ts              
 │   └── package.json
 ├── docs/
 │   └── NASA-new mix.md
