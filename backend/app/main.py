@@ -5,6 +5,7 @@ from typing import List, Literal, Optional
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
@@ -42,6 +43,15 @@ logger = logging.getLogger("FlameGuardAPI")
 limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(title="NASA Space Apps - FlameGuard SI API")
+app.add_middleware(
+    CORSMiddleware,
+    # Allow all origins for hackathon testing. 
+    # For strict production, replace ["*"] with ["http://localhost:5173", "https://your-frontend.vercel.app"]
+    allow_origins=["*"], 
+    allow_credentials=True,
+    allow_methods=["*"], # Allows all HTTP methods (GET, POST, OPTIONS, etc.)
+    allow_headers=["*"], # Allows all headers
+)
 
 # 2. Attach Limiter to the FaNstAPI app
 app.state.limiter = limiter
