@@ -20,7 +20,7 @@ t2 = time.perf_counter()
 
 model = SentenceTransformer(
     "sentence-transformers/all-MiniLM-L6-v2",
-    local_files_only=True
+    local_files_only=False
 )
 
 print("Model initialization:", round(time.perf_counter() - t2, 2), "seconds")
